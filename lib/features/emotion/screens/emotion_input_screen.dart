@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
+import '../../../core/theme/app_theme.dart';
 import '../providers/emotion_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class EmotionInputScreen extends StatefulWidget {
   const EmotionInputScreen({super.key});
@@ -21,49 +23,49 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
       emotion: 'happy',
       label: '기쁨',
       emoji: '😊',
-      color: const Color(0xFF38A169),
+      color: AppColors.joyBlue,
     ),
     EmotionOption(
       emotion: 'excited',
       label: '신남',
       emoji: '🤩',
-      color: const Color(0xFFD69E2E),
+      color: AppColors.successGreen,
     ),
     EmotionOption(
       emotion: 'calm',
       label: '평온',
       emoji: '😌',
-      color: const Color(0xFF38B2AC),
+      color: AppColors.calmGreen,
     ),
     EmotionOption(
       emotion: 'neutral',
       label: '보통',
       emoji: '😐',
-      color: const Color(0xFF718096),
+      color: AppColors.neutralGray,
     ),
     EmotionOption(
       emotion: 'sad',
       label: '슬픔',
       emoji: '😢',
-      color: const Color(0xFF4299E1),
+      color: AppColors.sadPurple,
     ),
     EmotionOption(
       emotion: 'angry',
       label: '화남',
       emoji: '😡',
-      color: const Color(0xFFE53E3E),
+      color: AppColors.angryRed,
     ),
     EmotionOption(
       emotion: 'anxious',
       label: '불안',
       emoji: '😰',
-      color: const Color(0xFF9F7AEA),
+      color: AppColors.warningOrange,
     ),
     EmotionOption(
       emotion: 'tired',
       label: '피곤',
       emoji: '😴',
-      color: const Color(0xFF718096),
+      color: AppColors.neutralGray,
     ),
   ];
 
@@ -77,14 +79,19 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
+      backgroundColor: AppColors.backgroundGray,
       appBar: AppBar(
-        title: const Text(
+        backgroundColor: AppColors.cardWhite,
+        elevation: 0,
+        title: Text(
           '감정 기록하기',
-          style: TextStyle(fontFamily: 'NotoSansKR'),
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.close),
+          icon: Icon(Icons.close, color: AppColors.textPrimary),
           onPressed: () => context.pop(),
         ),
         actions: [
@@ -99,12 +106,12 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
                       height: 16,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     )
-                  : const Text(
+                  : Text(
                       '저장',
-                      style: TextStyle(
-                        fontSize: 16,
+                      style: GoogleFonts.inter(
                         fontWeight: FontWeight.w600,
-                        fontFamily: 'NotoSansKR',
+                        color: _selectedEmotion != null ? AppColors.primaryBlue : AppColors.textTertiary,
+                        fontSize: 16,
                       ),
                     ),
             ),
@@ -112,29 +119,20 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // 감정 선택 섹션
             _buildEmotionSelectionSection(),
             const SizedBox(height: 24),
-
-            // 강도 조절 섹션
             if (_selectedEmotion != null) ...[
               _buildIntensitySection(),
               const SizedBox(height: 24),
             ],
-
-            // 제목 입력 섹션
             _buildTitleSection(),
             const SizedBox(height: 24),
-
-            // 내용 입력 섹션
             _buildContentSection(),
             const SizedBox(height: 24),
-
-            // 에러 메시지
             Consumer<EmotionProvider>(
               builder: (context, emotionProvider, child) {
                 if (emotionProvider.errorMessage != null) {
@@ -143,16 +141,15 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
                     padding: const EdgeInsets.all(12),
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.red.shade200),
+                      color: AppColors.errorRed.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.errorRed.withOpacity(0.3)),
                     ),
                     child: Text(
                       emotionProvider.errorMessage!,
-                      style: TextStyle(
-                        color: Colors.red.shade700,
+                      style: GoogleFonts.inter(
+                        color: AppColors.errorRed,
                         fontSize: 14,
-                        fontFamily: 'NotoSansKR',
                       ),
                     ),
                   );
@@ -169,42 +166,34 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
   Widget _buildEmotionSelectionSection() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardWhite,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(
                 Icons.psychology,
-                color: Color(0xFF6B73FF),
+                color: AppColors.primaryBlue,
                 size: 24,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 12),
               Text(
                 '지금 느끼는 감정을 선택해주세요',
-                style: TextStyle(
+                style: GoogleFonts.inter(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                  fontFamily: 'NotoSansKR',
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -218,7 +207,6 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
             itemBuilder: (context, index) {
               final option = _emotionOptions[index];
               final isSelected = _selectedEmotion == option.emotion;
-              
               return GestureDetector(
                 onTap: () {
                   setState(() {
@@ -227,10 +215,10 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
                 },
                 child: Container(
                   decoration: BoxDecoration(
-                    color: isSelected ? option.color.withOpacity(0.1) : const Color(0xFFF7FAFC),
+                    color: isSelected ? option.color.withOpacity(0.15) : AppColors.lightGray,
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: isSelected ? option.color : const Color(0xFFE2E8F0),
+                      color: isSelected ? option.color : Colors.transparent,
                       width: 2,
                     ),
                   ),
@@ -241,14 +229,13 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
                         option.emoji,
                         style: const TextStyle(fontSize: 24),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
                       Text(
                         option.label,
-                        style: TextStyle(
+                        style: GoogleFonts.inter(
                           fontSize: 12,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                          color: isSelected ? option.color : const Color(0xFF718096),
-                          fontFamily: 'NotoSansKR',
+                          color: isSelected ? option.color : AppColors.textSecondary,
                         ),
                       ),
                     ],
@@ -266,20 +253,13 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
     final selectedOption = _emotionOptions.firstWhere(
       (option) => option.emotion == _selectedEmotion,
     );
-
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardWhite,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -291,25 +271,23 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
                 color: selectedOption.color,
                 size: 24,
               ),
-              const SizedBox(width: 8),
-              const Text(
+              const SizedBox(width: 12),
+              Text(
                 '감정의 강도는 어느 정도인가요?',
-                style: TextStyle(
+                style: GoogleFonts.inter(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                  fontFamily: 'NotoSansKR',
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 20),
-          
           Row(
             children: [
               Text(
                 selectedOption.emoji,
-                style: const TextStyle(fontSize: 32),
+                style: const TextStyle(fontSize: 28),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -318,29 +296,26 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        const Text(
+                        Text(
                           '약함',
-                          style: TextStyle(
+                          style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: Color(0xFF718096),
-                            fontFamily: 'NotoSansKR',
+                            color: AppColors.textSecondary,
                           ),
                         ),
                         Text(
                           _emotionScore.toStringAsFixed(1),
-                          style: TextStyle(
+                          style: GoogleFonts.inter(
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontWeight: FontWeight.w600,
                             color: selectedOption.color,
-                            fontFamily: 'NotoSansKR',
                           ),
                         ),
-                        const Text(
+                        Text(
                           '강함',
-                          style: TextStyle(
+                          style: GoogleFonts.inter(
                             fontSize: 12,
-                            color: Color(0xFF718096),
-                            fontFamily: 'NotoSansKR',
+                            color: AppColors.textSecondary,
                           ),
                         ),
                       ],
@@ -351,6 +326,7 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
                         inactiveTrackColor: selectedOption.color.withOpacity(0.3),
                         thumbColor: selectedOption.color,
                         overlayColor: selectedOption.color.withOpacity(0.2),
+                        trackHeight: 4,
                       ),
                       child: Slider(
                         value: _emotionScore,
@@ -377,54 +353,58 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
   Widget _buildTitleSection() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardWhite,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(
                 Icons.title,
-                color: Color(0xFF6B73FF),
+                color: AppColors.primaryBlue,
                 size: 24,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 12),
               Text(
-                '제목 (선택사항)',
-                style: TextStyle(
+                '제목',
+                style: GoogleFonts.inter(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                  fontFamily: 'NotoSansKR',
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
           TextField(
             controller: _titleController,
-            decoration: const InputDecoration(
-              hintText: '오늘의 감정을 한 줄로 표현해보세요',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
+            decoration: InputDecoration(
+              hintText: '오늘의 감정을 한마디로 표현해보세요',
+              hintStyle: GoogleFonts.inter(
+                color: AppColors.textTertiary,
+                fontSize: 14,
               ),
+              filled: true,
+              fillColor: AppColors.lightGray,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
-            style: const TextStyle(fontFamily: 'NotoSansKR'),
-            maxLength: 50,
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),
@@ -434,86 +414,74 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
   Widget _buildContentSection() {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardWhite,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(
-                Icons.edit_note,
-                color: Color(0xFF6B73FF),
+                Icons.edit,
+                color: AppColors.successGreen,
                 size: 24,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 12),
               Text(
-                '자세한 내용 (선택사항)',
-                style: TextStyle(
+                '상세 내용',
+                style: GoogleFonts.inter(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                  fontFamily: 'NotoSansKR',
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
           TextField(
             controller: _contentController,
-            decoration: const InputDecoration(
-              hintText: '감정에 대해 더 자세히 적어보세요...\n무엇이 이 감정을 느끼게 했나요?',
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.all(16),
-            ),
-            style: const TextStyle(fontFamily: 'NotoSansKR'),
             maxLines: 5,
-            maxLength: 500,
+            decoration: InputDecoration(
+              hintText: '감정에 대한 생각이나 상황을 자유롭게 적어보세요',
+              hintStyle: GoogleFonts.inter(
+                color: AppColors.textTertiary,
+                fontSize: 14,
+              ),
+              filled: true,
+              fillColor: AppColors.lightGray,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            ),
+            style: GoogleFonts.inter(
+              fontSize: 14,
+              color: AppColors.textPrimary,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _saveEmotion() async {
-    if (_selectedEmotion == null) return;
-
+  void _saveEmotion() {
     final emotionProvider = Provider.of<EmotionProvider>(context, listen: false);
-    emotionProvider.clearError();
-
-    final success = await emotionProvider.addEmotionEntry(
+    emotionProvider.saveEmotion(
       emotion: _selectedEmotion!,
-      title: _titleController.text.trim().isEmpty ? null : _titleController.text.trim(),
-      content: _contentController.text.trim().isEmpty ? null : _contentController.text.trim(),
       score: _emotionScore,
+      title: _titleController.text,
+      content: _contentController.text,
     );
-
-    if (success && mounted) {
-      // 성공 메시지 표시
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            '감정이 성공적으로 기록되었습니다!',
-            style: TextStyle(fontFamily: 'NotoSansKR'),
-          ),
-          backgroundColor: Color(0xFF38A169),
-        ),
-      );
-      
-      // 홈으로 돌아가기
-      context.go('/home');
-    }
+    context.pop();
   }
 }
 
@@ -522,8 +490,7 @@ class EmotionOption {
   final String label;
   final String emoji;
   final Color color;
-
-  EmotionOption({
+  const EmotionOption({
     required this.emotion,
     required this.label,
     required this.emoji,

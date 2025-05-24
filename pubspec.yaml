@@ -44,6 +44,9 @@ dependencies:
   # Google Sign In
   google_sign_in: ^6.2.1
   
+  # UI and Design
+  google_fonts: ^6.1.0
+  
   # HTTP and API
   http: ^1.2.2
   dio: ^5.7.0

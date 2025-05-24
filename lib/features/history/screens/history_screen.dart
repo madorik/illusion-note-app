@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../providers/history_provider.dart';
 import '../../emotion/providers/emotion_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -50,12 +51,10 @@ class _HistoryScreenState extends State<HistoryScreen>
               labelStyle: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'NotoSansKR',
               ),
               unselectedLabelStyle: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.normal,
-                fontFamily: 'NotoSansKR',
               ),
               tabs: const [
                 Tab(text: '기록'),
@@ -104,7 +103,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                   style: const TextStyle(
                     fontSize: 16,
                     color: Color(0xFF718096),
-                    fontFamily: 'NotoSansKR',
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -113,7 +111,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                   onPressed: _loadData,
                   child: const Text(
                     '다시 시도',
-                    style: TextStyle(fontFamily: 'NotoSansKR'),
                   ),
                 ),
               ],
@@ -138,7 +135,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF2D3748),
-                    fontFamily: 'NotoSansKR',
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -147,7 +143,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                   style: TextStyle(
                     fontSize: 16,
                     color: Color(0xFF718096),
-                    fontFamily: 'NotoSansKR',
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -159,7 +154,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                   icon: const Icon(Icons.add),
                   label: const Text(
                     '감정 기록하기',
-                    style: TextStyle(fontFamily: 'NotoSansKR'),
                   ),
                 ),
               ],
@@ -219,7 +213,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF2D3748),
-                        fontFamily: 'NotoSansKR',
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -230,7 +223,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                           style: const TextStyle(
                             fontSize: 12,
                             color: Color(0xFF718096),
-                            fontFamily: 'NotoSansKR',
                           ),
                         ),
                         if (entry.score != null) ...[
@@ -250,7 +242,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                                 fontSize: 10,
                                 fontWeight: FontWeight.w600,
                                 color: _getEmotionColor(entry.emotion),
-                                fontFamily: 'NotoSansKR',
                               ),
                             ),
                           ),
@@ -275,7 +266,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                         SizedBox(width: 8),
                         Text(
                           '수정',
-                          style: TextStyle(fontFamily: 'NotoSansKR'),
                         ),
                       ],
                     ),
@@ -290,7 +280,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                           '삭제',
                           style: TextStyle(
                             color: Colors.red,
-                            fontFamily: 'NotoSansKR',
                           ),
                         ),
                       ],
@@ -307,7 +296,6 @@ class _HistoryScreenState extends State<HistoryScreen>
               style: const TextStyle(
                 fontSize: 14,
                 color: Color(0xFF4A5568),
-                fontFamily: 'NotoSansKR',
               ),
             ),
           ],
@@ -373,7 +361,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2D3748),
-                      fontFamily: 'NotoSansKR',
                     ),
                   ),
                 ],
@@ -425,7 +412,6 @@ class _HistoryScreenState extends State<HistoryScreen>
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Color(0xFF2D3748),
-            fontFamily: 'NotoSansKR',
           ),
         ),
         const SizedBox(height: 4),
@@ -434,7 +420,6 @@ class _HistoryScreenState extends State<HistoryScreen>
           style: const TextStyle(
             fontSize: 12,
             color: Color(0xFF718096),
-            fontFamily: 'NotoSansKR',
           ),
         ),
       ],
@@ -477,7 +462,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF2D3748),
-                      fontFamily: 'NotoSansKR',
                     ),
                   ),
                 ],
@@ -491,7 +475,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                     style: TextStyle(
                       fontSize: 16,
                       color: Color(0xFF718096),
-                      fontFamily: 'NotoSansKR',
                     ),
                   ),
                 )
@@ -513,7 +496,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                               fontSize: 16,
                               fontWeight: FontWeight.w500,
                               color: Color(0xFF2D3748),
-                              fontFamily: 'NotoSansKR',
                             ),
                           ),
                         ),
@@ -532,7 +514,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                               fontSize: 14,
                               fontWeight: FontWeight.w600,
                               color: _getEmotionColor(entry.key),
-                              fontFamily: 'NotoSansKR',
                             ),
                           ),
                         ),
@@ -579,7 +560,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF2D3748),
-                  fontFamily: 'NotoSansKR',
                 ),
               ),
             ],
@@ -600,7 +580,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                   style: TextStyle(
                     fontSize: 16,
                     color: Color(0xFF718096),
-                    fontFamily: 'NotoSansKR',
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -638,7 +617,6 @@ class _HistoryScreenState extends State<HistoryScreen>
       const SnackBar(
         content: Text(
           '편집 기능은 곧 구현될 예정입니다',
-          style: TextStyle(fontFamily: 'NotoSansKR'),
         ),
       ),
     );
@@ -650,18 +628,15 @@ class _HistoryScreenState extends State<HistoryScreen>
       builder: (context) => AlertDialog(
         title: const Text(
           '기록 삭제',
-          style: TextStyle(fontFamily: 'NotoSansKR'),
         ),
         content: const Text(
           '이 감정 기록을 삭제하시겠습니까?\n삭제된 기록은 복구할 수 없습니다.',
-          style: TextStyle(fontFamily: 'NotoSansKR'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text(
               '취소',
-              style: TextStyle(fontFamily: 'NotoSansKR'),
             ),
           ),
           Consumer<EmotionProvider>(
@@ -676,7 +651,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                           const SnackBar(
                             content: Text(
                               '기록이 삭제되었습니다',
-                              style: TextStyle(fontFamily: 'NotoSansKR'),
                             ),
                           ),
                         );
@@ -687,10 +661,6 @@ class _HistoryScreenState extends State<HistoryScreen>
                   ? const CircularProgressIndicator()
                   : const Text(
                       '삭제',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontFamily: 'NotoSansKR',
-                      ),
                     ),
             ),
           ),

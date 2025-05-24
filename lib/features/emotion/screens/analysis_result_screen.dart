@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AnalysisResultScreen extends StatelessWidget {
   final String emotionText;
@@ -14,9 +15,12 @@ class AnalysisResultScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           '분석 결과',
-          style: TextStyle(fontFamily: 'NotoSansKR'),
+          style: GoogleFonts.nunito(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: IconButton(
           icon: const Icon(Icons.close),
@@ -63,7 +67,7 @@ class AnalysisResultScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(
                 Icons.psychology,
@@ -73,11 +77,10 @@ class AnalysisResultScreen extends StatelessWidget {
               SizedBox(width: 12),
               Text(
                 '감정 분석 완료',
-                style: TextStyle(
+                style: GoogleFonts.nunito(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
-                  fontFamily: 'NotoSansKR',
                 ),
               ),
             ],
@@ -94,12 +97,11 @@ class AnalysisResultScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   '감지된 주요 감정',
-                  style: TextStyle(
+                  style: GoogleFonts.nunito(
                     fontSize: 14,
                     color: Colors.white70,
-                    fontFamily: 'NotoSansKR',
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -119,7 +121,6 @@ class AnalysisResultScreen extends StatelessWidget {
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            fontFamily: 'NotoSansKR',
                           ),
                         ),
                         Container(
@@ -136,7 +137,6 @@ class AnalysisResultScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.white,
-                              fontFamily: 'NotoSansKR',
                             ),
                           ),
                         ),
@@ -170,7 +170,7 @@ class AnalysisResultScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(
                 Icons.analytics,
@@ -180,11 +180,10 @@ class AnalysisResultScreen extends StatelessWidget {
               SizedBox(width: 8),
               Text(
                 '상세 분석',
-                style: TextStyle(
+                style: GoogleFonts.nunito(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF2D3748),
-                  fontFamily: 'NotoSansKR',
                 ),
               ),
             ],
@@ -198,7 +197,6 @@ class AnalysisResultScreen extends StatelessWidget {
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Color(0xFF2D3748),
-              fontFamily: 'NotoSansKR',
             ),
           ),
           const SizedBox(height: 12),
@@ -220,7 +218,6 @@ class AnalysisResultScreen extends StatelessWidget {
               fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Color(0xFF2D3748),
-              fontFamily: 'NotoSansKR',
             ),
           ),
           const SizedBox(height: 12),
@@ -250,10 +247,9 @@ class AnalysisResultScreen extends StatelessWidget {
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: GoogleFonts.nunito(
                 fontSize: 14,
                 color: Color(0xFF4A5568),
-                fontFamily: 'NotoSansKR',
               ),
             ),
             Text(
@@ -262,7 +258,6 @@ class AnalysisResultScreen extends StatelessWidget {
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: color,
-                fontFamily: 'NotoSansKR',
               ),
             ),
           ],
@@ -289,11 +284,10 @@ class AnalysisResultScreen extends StatelessWidget {
       ),
       child: Text(
         keyword,
-        style: const TextStyle(
+        style: GoogleFonts.nunito(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           color: Color(0xFF6B73FF),
-          fontFamily: 'NotoSansKR',
         ),
       ),
     );
@@ -317,7 +311,7 @@ class AnalysisResultScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               Icon(
                 Icons.lightbulb,
@@ -327,11 +321,10 @@ class AnalysisResultScreen extends StatelessWidget {
               SizedBox(width: 8),
               Text(
                 '추천 사항',
-                style: TextStyle(
+                style: GoogleFonts.nunito(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF2D3748),
-                  fontFamily: 'NotoSansKR',
                 ),
               ),
             ],
@@ -377,20 +370,18 @@ class AnalysisResultScreen extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: GoogleFonts.nunito(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF2D3748),
-                  fontFamily: 'NotoSansKR',
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 description,
-                style: const TextStyle(
+                style: GoogleFonts.nunito(
                   fontSize: 14,
                   color: Color(0xFF4A5568),
-                  fontFamily: 'NotoSansKR',
                 ),
               ),
             ],
@@ -414,7 +405,6 @@ class AnalysisResultScreen extends StatelessWidget {
                 const SnackBar(
                   content: Text(
                     '분석 결과가 저장되었습니다!',
-                    style: TextStyle(fontFamily: 'NotoSansKR'),
                   ),
                   backgroundColor: Color(0xFF38A169),
                 ),
@@ -427,7 +417,6 @@ class AnalysisResultScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'NotoSansKR',
               ),
             ),
             style: ElevatedButton.styleFrom(
@@ -452,7 +441,6 @@ class AnalysisResultScreen extends StatelessWidget {
                 const SnackBar(
                   content: Text(
                     '공유 기능은 곧 출시될 예정입니다',
-                    style: TextStyle(fontFamily: 'NotoSansKR'),
                   ),
                 ),
               );
@@ -463,7 +451,6 @@ class AnalysisResultScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                fontFamily: 'NotoSansKR',
               ),
             ),
             style: OutlinedButton.styleFrom(
@@ -485,7 +472,6 @@ class AnalysisResultScreen extends StatelessWidget {
             style: TextStyle(
               fontSize: 16,
               color: Color(0xFF718096),
-              fontFamily: 'NotoSansKR',
             ),
           ),
         ),

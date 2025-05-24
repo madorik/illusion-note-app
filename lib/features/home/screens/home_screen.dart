@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../emotion/providers/emotion_provider.dart';
 import '../../history/providers/history_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,37 +31,28 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7FAFC),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 사용자 인사 및 프로필
-            _buildUserGreeting(),
-            const SizedBox(height: 24),
-
-            // 빠른 액션 버튼들
-            _buildQuickActions(),
-            const SizedBox(height: 24),
-
-            // 오늘의 감정 상태
-            _buildTodayEmotionStatus(),
-            const SizedBox(height: 24),
-
-            // 최근 기록
-            _buildRecentEntries(),
-            const SizedBox(height: 24),
-
-            // 통계 정보
-            _buildStatistics(),
-          ],
+      backgroundColor: AppColors.backgroundGray,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 32),
+              _buildQuickActions(),
+              const SizedBox(height: 32),
+              _buildEmotionStatus(),
+              const SizedBox(height: 32),
+              _buildWeeklyStats(),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildUserGreeting() {
+  Widget _buildHeader() {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         final user = authProvider.user;
@@ -76,15 +69,11 @@ class _HomeScreenState extends State<HomeScreen> {
         }
 
         return Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF6B73FF), Color(0xFF9F7AEA)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
+            color: AppColors.cardWhite,
             borderRadius: BorderRadius.circular(16),
+            boxShadow: AppTheme.cardShadow,
           ),
           child: Row(
             children: [
@@ -94,58 +83,44 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       '$greeting!',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.white70,
-                        fontFamily: 'NotoSansKR',
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '$userName님',
-                      style: const TextStyle(
+                      style: GoogleFonts.inter(
                         fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        fontFamily: 'NotoSansKR',
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      '오늘의 감정은 어떠신가요?',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                        fontFamily: 'NotoSansKR',
+                    Text(
+                      '오늘 기분은 어떠신가요?',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: AppColors.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
               CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.white.withOpacity(0.2),
-                child: user?.photoURL != null
-                    ? ClipOval(
-                        child: Image.network(
-                          user!.photoURL!,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.person,
-                              size: 30,
-                              color: Colors.white,
-                            );
-                          },
-                        ),
-                      )
-                    : const Icon(
+                radius: 28,
+                backgroundColor: AppColors.lightBlue,
+                backgroundImage: user?.photoURL != null 
+                    ? NetworkImage(user!.photoURL!) 
+                    : null,
+                child: user?.photoURL == null
+                    ? Icon(
                         Icons.person,
-                        size: 30,
-                        color: Colors.white,
-                      ),
+                        size: 28,
+                        color: AppColors.primaryBlue,
+                      )
+                    : null,
               ),
             ],
           ),
@@ -158,35 +133,34 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           '빠른 실행',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2D3748),
-            fontFamily: 'NotoSansKR',
+          style: GoogleFonts.inter(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
         Row(
           children: [
             Expanded(
               child: _buildActionCard(
-                icon: Icons.add_circle,
-                title: '감정 기록',
-                subtitle: '지금 느끼는 감정을\n기록해보세요',
-                color: const Color(0xFF6B73FF),
-                onTap: () => context.push('/emotion-input'),
+                '감정 기록',
+                '지금 느끼는 감정을\n기록해보세요',
+                Icons.edit_note,
+                AppColors.primaryBlue,
+                () => context.push('/emotion-input'),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 16),
             Expanded(
               child: _buildActionCard(
-                icon: Icons.history,
-                title: '기록 보기',
-                subtitle: '지난 감정 기록을\n확인해보세요',
-                color: const Color(0xFF38B2AC),
-                onTap: () => context.push('/history'),
+                '기록 보기',
+                '이전 감정 기록들을\n확인해보세요',
+                Icons.history,
+                AppColors.successGreen,
+                () => context.push('/history'),
               ),
             ),
           ],
@@ -195,61 +169,67 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildActionCard({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildActionCard(
+    String title,
+    String subtitle,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        height: 140,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: AppColors.cardWhite,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: AppTheme.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                icon,
-                color: color,
-                size: 24,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: color,
+                    size: 20,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3748),
-                fontFamily: 'NotoSansKR',
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF718096),
-                fontFamily: 'NotoSansKR',
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ],
         ),
@@ -257,48 +237,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildTodayEmotionStatus() {
+  Widget _buildEmotionStatus() {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardWhite,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(
-                Icons.today,
-                color: Color(0xFF6B73FF),
+              Icon(
+                Icons.favorite,
+                color: AppColors.errorRed,
                 size: 24,
               ),
               const SizedBox(width: 8),
               Text(
                 '오늘의 감정',
-                style: const TextStyle(
+                style: GoogleFonts.inter(
                   fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                  fontFamily: 'NotoSansKR',
-                ),
-              ),
-              const Spacer(),
-              Text(
-                DateFormat('MM월 dd일').format(DateTime.now()),
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF718096),
-                  fontFamily: 'NotoSansKR',
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textPrimary,
                 ),
               ),
             ],
@@ -312,65 +275,38 @@ class _HomeScreenState extends State<HomeScreen> {
                 return Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF7FAFC),
+                    color: AppColors.lightGray,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Column(
+                  child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.sentiment_neutral,
-                        size: 48,
-                        color: Color(0xFF718096),
+                        color: AppColors.textTertiary,
+                        size: 32,
                       ),
-                      const SizedBox(height: 12),
-                      const Text(
-                        '오늘 아직 감정을 기록하지 않았어요',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF718096),
-                          fontFamily: 'NotoSansKR',
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () => context.push('/emotion-input'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6B73FF),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          '아직 오늘의 감정을 기록하지 않았어요.\n첫 감정을 기록해보세요!',
+                          style: GoogleFonts.inter(
+                            fontSize: 14,
+                            color: AppColors.textSecondary,
                           ),
-                        ),
-                        child: const Text(
-                          '지금 기록하기',
-                          style: TextStyle(fontFamily: 'NotoSansKR'),
                         ),
                       ),
                     ],
                   ),
                 );
               }
-
+              
               return Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      _buildEmotionStat('😊', '긍정', todayEntries.where((e) => e.emotion == 'positive').length),
-                      _buildEmotionStat('😢', '부정', todayEntries.where((e) => e.emotion == 'negative').length),
-                      _buildEmotionStat('😐', '중립', todayEntries.where((e) => e.emotion == 'neutral').length),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '총 ${todayEntries.length}개의 감정을 기록했어요',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF718096),
-                      fontFamily: 'NotoSansKR',
-                    ),
-                  ),
-                ],
+                children: todayEntries.take(3).map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _buildEmotionItem(entry),
+                  );
+                }).toList(),
               );
             },
           ),
@@ -379,218 +315,94 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildEmotionStat(String emoji, String label, int count) {
-    return Column(
-      children: [
-        Text(
-          emoji,
-          style: const TextStyle(fontSize: 32),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 14,
-            color: Color(0xFF718096),
-            fontFamily: 'NotoSansKR',
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '$count회',
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2D3748),
-            fontFamily: 'NotoSansKR',
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildRecentEntries() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Text(
-              '최근 기록',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3748),
-                fontFamily: 'NotoSansKR',
-              ),
-            ),
-            const Spacer(),
-            TextButton(
-              onPressed: () => context.push('/history'),
-              child: const Text(
-                '전체보기',
-                style: TextStyle(
-                  color: Color(0xFF6B73FF),
-                  fontFamily: 'NotoSansKR',
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Consumer<HistoryProvider>(
-          builder: (context, historyProvider, child) {
-            final recentEntries = historyProvider.recentEntries.take(3).toList();
-            
-            if (recentEntries.isEmpty) {
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: const Text(
-                  '아직 기록된 감정이 없어요\n첫 번째 감정을 기록해보세요!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF718096),
-                    fontFamily: 'NotoSansKR',
-                  ),
-                ),
-              );
-            }
-
-            return Column(
-              children: recentEntries.map((entry) => _buildEntryCard(entry)).toList(),
-            );
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildEntryCard(dynamic entry) {
+  Widget _buildEmotionItem(EmotionEntry entry) {
     return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.lightGray,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            children: [
-              Text(
-                _getEmotionEmoji(entry.emotion ?? 'neutral'),
-                style: const TextStyle(fontSize: 24),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  entry.title ?? '감정 기록',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF2D3748),
-                    fontFamily: 'NotoSansKR',
+          Text(
+            _getEmotionEmoji(entry.emotion),
+            style: const TextStyle(fontSize: 24),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  entry.title ?? _getEmotionLabel(entry.emotion),
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary,
                   ),
                 ),
-              ),
-              Text(
-                DateFormat('MM/dd HH:mm').format(entry.createdAt ?? DateTime.now()),
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF718096),
-                  fontFamily: 'NotoSansKR',
+                Text(
+                  '${entry.createdAt.hour}:${entry.createdAt.minute.toString().padLeft(2, '0')}',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
-              ),
-            ],
-          ),
-          if (entry.content != null && entry.content!.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              entry.content!,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF4A5568),
-                fontFamily: 'NotoSansKR',
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+              ],
             ),
-          ],
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildStatistics() {
+  Widget _buildWeeklyStats() {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.cardWhite,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        boxShadow: AppTheme.cardShadow,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
-            children: [
-              Icon(
-                Icons.analytics,
-                color: Color(0xFF6B73FF),
-                size: 24,
-              ),
-              SizedBox(width: 8),
-              Text(
-                '이번 주 통계',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF2D3748),
-                  fontFamily: 'NotoSansKR',
-                ),
-              ),
-            ],
+          Text(
+            '이번 주 통계',
+            style: GoogleFonts.inter(
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: AppColors.textPrimary,
+            ),
           ),
-          const SizedBox(height: 16),
-          Consumer<HistoryProvider>(
-            builder: (context, historyProvider, child) {
-              final weeklyStats = historyProvider.getWeeklyStats();
+          const SizedBox(height: 20),
+          Consumer<EmotionProvider>(
+            builder: (context, emotionProvider, child) {
+              final stats = emotionProvider.getWeeklyStats();
               
               return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  _buildStatCard('총 기록', '${weeklyStats['total'] ?? 0}회', Icons.edit),
-                  _buildStatCard('연속 기록', '${weeklyStats['streak'] ?? 0}일', Icons.local_fire_department),
-                  _buildStatCard('평균 점수', '${weeklyStats['avgScore'] ?? 0}점', Icons.star),
+                  Expanded(
+                    child: _buildStatItem(
+                      '총 기록',
+                      '${stats['total']}개',
+                      AppColors.primaryBlue,
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildStatItem(
+                      '연속 기록',
+                      '${stats['streak']}일',
+                      AppColors.successGreen,
+                    ),
+                  ),
+                  Expanded(
+                    child: _buildStatItem(
+                      '평균 점수',
+                      stats['avgScore'],
+                      AppColors.warningOrange,
+                    ),
+                  ),
                 ],
               );
             },
@@ -600,31 +412,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon) {
+  Widget _buildStatItem(String label, String value, Color color) {
     return Column(
       children: [
-        Icon(
-          icon,
-          color: const Color(0xFF6B73FF),
-          size: 32,
-        ),
-        const SizedBox(height: 8),
         Text(
           value,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF2D3748),
-            fontFamily: 'NotoSansKR',
+          style: GoogleFonts.inter(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: color,
           ),
         ),
         const SizedBox(height: 4),
         Text(
-          title,
-          style: const TextStyle(
+          label,
+          style: GoogleFonts.inter(
             fontSize: 12,
-            color: Color(0xFF718096),
-            fontFamily: 'NotoSansKR',
+            color: AppColors.textSecondary,
           ),
         ),
       ],
@@ -649,6 +453,19 @@ class _HomeScreenState extends State<HomeScreen> {
         return '😌';
       default:
         return '😐';
+    }
+  }
+
+  String _getEmotionLabel(String emotion) {
+    switch (emotion.toLowerCase()) {
+      case 'positive':
+        return '긍정';
+      case 'negative':
+        return '부정';
+      case 'neutral':
+        return '중립';
+      default:
+        return emotion;
     }
   }
 } 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../features/auth/providers/auth_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -63,7 +64,6 @@ class _MainLayoutState extends State<MainLayout> {
             color: Color(0xFF2D3748),
             fontSize: 20,
             fontWeight: FontWeight.bold,
-            fontFamily: 'NotoSansKR',
           ),
         ),
         actions: [
@@ -94,7 +94,6 @@ class _MainLayoutState extends State<MainLayout> {
                     SizedBox(width: 12),
                     Text(
                       '프로필',
-                      style: TextStyle(fontFamily: 'NotoSansKR'),
                     ),
                   ],
                 ),
@@ -107,7 +106,6 @@ class _MainLayoutState extends State<MainLayout> {
                     SizedBox(width: 12),
                     Text(
                       '설정',
-                      style: TextStyle(fontFamily: 'NotoSansKR'),
                     ),
                   ],
                 ),
@@ -121,9 +119,8 @@ class _MainLayoutState extends State<MainLayout> {
                     SizedBox(width: 12),
                     Text(
                       '로그아웃',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.red,
-                        fontFamily: 'NotoSansKR',
                       ),
                     ),
                   ],
@@ -211,7 +208,6 @@ class _MainLayoutState extends State<MainLayout> {
               fontSize: 12,
               color: isSelected ? const Color(0xFF6B73FF) : const Color(0xFF718096),
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              fontFamily: 'NotoSansKR',
             ),
           ),
         ],
@@ -263,7 +259,6 @@ class _MainLayoutState extends State<MainLayout> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'NotoSansKR',
               ),
             ),
             const SizedBox(height: 20),
@@ -283,7 +278,6 @@ class _MainLayoutState extends State<MainLayout> {
                       style: TextStyle(
                         fontSize: 16,
                         color: Colors.grey[600],
-                        fontFamily: 'NotoSansKR',
                       ),
                     ),
                   ],
@@ -317,7 +311,6 @@ class _MainLayoutState extends State<MainLayout> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    fontFamily: 'NotoSansKR',
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -360,7 +353,6 @@ class _MainLayoutState extends State<MainLayout> {
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
-                              fontFamily: 'NotoSansKR',
                             ),
                           ),
                           const SizedBox(height: 4),
@@ -369,7 +361,6 @@ class _MainLayoutState extends State<MainLayout> {
                             style: const TextStyle(
                               fontSize: 14,
                               color: Color(0xFF718096),
-                              fontFamily: 'NotoSansKR',
                             ),
                           ),
                         ],
@@ -422,7 +413,6 @@ class _MainLayoutState extends State<MainLayout> {
       leading: Icon(icon, color: const Color(0xFF6B73FF)),
       title: Text(
         title,
-        style: const TextStyle(fontFamily: 'NotoSansKR'),
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
@@ -446,7 +436,6 @@ class _MainLayoutState extends State<MainLayout> {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
-                fontFamily: 'NotoSansKR',
               ),
             ),
             const SizedBox(height: 20),
@@ -506,7 +495,6 @@ class _MainLayoutState extends State<MainLayout> {
       leading: Icon(icon, color: const Color(0xFF6B73FF)),
       title: Text(
         title,
-        style: const TextStyle(fontFamily: 'NotoSansKR'),
       ),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
@@ -519,18 +507,15 @@ class _MainLayoutState extends State<MainLayout> {
       builder: (context) => AlertDialog(
         title: const Text(
           '로그아웃',
-          style: TextStyle(fontFamily: 'NotoSansKR'),
         ),
         content: const Text(
           '정말 로그아웃하시겠습니까?',
-          style: TextStyle(fontFamily: 'NotoSansKR'),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text(
               '취소',
-              style: TextStyle(fontFamily: 'NotoSansKR'),
             ),
           ),
           Consumer<AuthProvider>(
@@ -550,7 +535,6 @@ class _MainLayoutState extends State<MainLayout> {
                       '로그아웃',
                       style: TextStyle(
                         color: Colors.red,
-                        fontFamily: 'NotoSansKR',
                       ),
                     ),
             ),

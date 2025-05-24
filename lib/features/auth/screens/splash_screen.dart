@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../providers/auth_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -99,7 +100,6 @@ class _SplashScreenState extends State<SplashScreen>
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
-                      fontFamily: 'NotoSansKR',
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -110,7 +110,6 @@ class _SplashScreenState extends State<SplashScreen>
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.white70,
-                      fontFamily: 'NotoSansKR',
                     ),
                   ),
                 ],

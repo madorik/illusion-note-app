@@ -338,4 +338,21 @@ class EmotionProvider extends ChangeNotifier {
     _currentAnalysis = null;
     notifyListeners();
   }
+
+  // 예시: void saveEmotion({ ... }) => addEmotionEntry(...);
+  // 또는 실제 저장 로직을 saveEmotion으로 래핑
+
+  Future<bool> saveEmotion({
+    required String emotion,
+    String? title,
+    String? content,
+    double? score,
+  }) async {
+    return await addEmotionEntry(
+      emotion: emotion,
+      title: title,
+      content: content,
+      score: score,
+    );
+  }
 } 
