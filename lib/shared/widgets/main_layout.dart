@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import '../../features/auth/providers/mock_auth_provider.dart';
+import '../../features/auth/providers/auth_provider.dart';
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -302,7 +302,7 @@ class _MainLayoutState extends State<MainLayout> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => Consumer<MockAuthProvider>(
+      builder: (context) => Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
           final user = authProvider.user;
           
@@ -533,7 +533,7 @@ class _MainLayoutState extends State<MainLayout> {
               style: TextStyle(fontFamily: 'NotoSansKR'),
             ),
           ),
-          Consumer<MockAuthProvider>(
+          Consumer<AuthProvider>(
             builder: (context, authProvider, child) => TextButton(
               onPressed: authProvider.isLoading
                   ? null

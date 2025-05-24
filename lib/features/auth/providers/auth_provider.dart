@@ -1,5 +1,3 @@
-// Firebase가 비활성화된 동안 주석 처리
-/*
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -166,6 +164,5 @@ class AuthProvider extends ChangeNotifier {
     _setError(null);
   }
 }
-*/
 
 // Firebase 비활성화 중에는 MockAuthProvider를 사용하세요. 

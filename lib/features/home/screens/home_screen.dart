@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import '../../auth/providers/mock_auth_provider.dart';
+import '../../auth/providers/auth_provider.dart';
 import '../../emotion/providers/emotion_provider.dart';
 import '../../history/providers/history_provider.dart';
 
@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildUserGreeting() {
-    return Consumer<MockAuthProvider>(
+    return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
         final user = authProvider.user;
         final userName = user?.displayName ?? user?.email?.split('@')[0] ?? '사용자';

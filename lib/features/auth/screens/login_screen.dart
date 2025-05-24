@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../providers/mock_auth_provider.dart';
+import '../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -68,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Column(
                 children: [
                   // Google 로그인 버튼
-                  Consumer<MockAuthProvider>(
+                  Consumer<AuthProvider>(
                     builder: (context, authProvider, child) {
                       return SizedBox(
                         width: double.infinity,
@@ -178,7 +178,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 32),
               
               // 에러 메시지
-              Consumer<MockAuthProvider>(
+              Consumer<AuthProvider>(
                 builder: (context, authProvider, child) {
                   if (authProvider.errorMessage != null) {
                     return Container(
@@ -211,7 +211,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-    Future<void> _signInWithGoogle(BuildContext context) async {    final authProvider = Provider.of<MockAuthProvider>(context, listen: false);    authProvider.clearError();        final success = await authProvider.signInWithGoogle();        if (success && context.mounted) {      context.go('/home');    }  }
+    Future<void> _signInWithGoogle(BuildContext context) async {    final authProvider = Provider.of<AuthProvider>(context, listen: false);    authProvider.clearError();        final success = await authProvider.signInWithGoogle();        if (success && context.mounted) {      context.go('/home');    }  }
 
   void _showEmailLoginDialog(BuildContext context) {
     final emailController = TextEditingController();
@@ -278,7 +278,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(fontFamily: 'NotoSansKR'),
               ),
             ),
-            Consumer<MockAuthProvider>(
+            Consumer<AuthProvider>(
               builder: (context, authProvider, child) => ElevatedButton(
                 onPressed: authProvider.isLoading
                     ? null
@@ -310,7 +310,7 @@ class _LoginScreenState extends State<LoginScreen> {
     String name,
     bool isSignUp,
   ) async {
-    final authProvider = Provider.of<MockAuthProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     authProvider.clearError();
 
     bool success;

@@ -41,46 +41,46 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'your-web-api-key',
-    appId: 'your-web-app-id',
-    messagingSenderId: 'your-sender-id',
-    projectId: 'illusion-note',
-    authDomain: 'illusion-note.firebaseapp.com',
-    storageBucket: 'illusion-note.appspot.com',
+    apiKey: 'AlzaSyAw4uc77U6d8tZZmGcKzs8EIMqTTUMXVgo',
+    appId: '1:36096427877:web:your-web-app-id',
+    messagingSenderId: '36096427877',
+    projectId: 'illusion-note-app',
+    authDomain: 'illusion-note-app.firebaseapp.com',
+    storageBucket: 'illusion-note-app.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'your-android-api-key',
-    appId: 'your-android-app-id',
-    messagingSenderId: 'your-sender-id',
-    projectId: 'illusion-note',
-    storageBucket: 'illusion-note.appspot.com',
+    apiKey: 'AlzaSyAw4uc77U6d8tZZmGcKzs8EIMqTTUMXVgo',
+    appId: '1:36096427877:android:950de65ab1910081842754',
+    messagingSenderId: '36096427877',
+    projectId: 'illusion-note-app',
+    storageBucket: 'illusion-note-app.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'your-ios-api-key',
-    appId: 'your-ios-app-id',
-    messagingSenderId: 'your-sender-id',
-    projectId: 'illusion-note',
-    bundleId: 'com.mgjeong.illusion',
-    storageBucket: 'illusion-note.appspot.com',
+    apiKey: 'AlzaSyAw4uc77U6d8tZZmGcKzs8EIMqTTUMXVgo',
+    appId: '1:36096427877:ios:your-ios-app-id',
+    messagingSenderId: '36096427877',
+    projectId: 'illusion-note-app',
+    iosBundleId: 'com.mgjeong.illusion',
+    storageBucket: 'illusion-note-app.appspot.com',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'your-macos-api-key',
-    appId: 'your-macos-app-id',
-    messagingSenderId: 'your-sender-id',
-    projectId: 'illusion-note',
-    bundleId: 'com.mgjeong.illusion',
-    storageBucket: 'illusion-note.appspot.com',
+    apiKey: 'AlzaSyAw4uc77U6d8tZZmGcKzs8EIMqTTUMXVgo',
+    appId: '1:36096427877:macos:your-macos-app-id',
+    messagingSenderId: '36096427877',
+    projectId: 'illusion-note-app',
+    iosBundleId: 'com.mgjeong.illusion',
+    storageBucket: 'illusion-note-app.appspot.com',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'your-windows-api-key',
-    appId: 'your-windows-app-id',
-    messagingSenderId: 'your-sender-id',
-    projectId: 'illusion-note',
-    authDomain: 'illusion-note.firebaseapp.com',
-    storageBucket: 'illusion-note.appspot.com',
+    apiKey: 'AlzaSyAw4uc77U6d8tZZmGcKzs8EIMqTTUMXVgo',
+    appId: '1:36096427877:windows:your-windows-app-id',
+    messagingSenderId: '36096427877',
+    projectId: 'illusion-note-app',
+    authDomain: 'illusion-note-app.firebaseapp.com',
+    storageBucket: 'illusion-note-app.appspot.com',
   );
 } 
