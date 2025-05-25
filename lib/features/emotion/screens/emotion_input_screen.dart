@@ -13,142 +13,173 @@ class EmotionInputScreen extends StatefulWidget {
 }
 
 class _EmotionInputScreenState extends State<EmotionInputScreen> {
-  final _titleController = TextEditingController();
-  final _contentController = TextEditingController();
-  String? _selectedEmotion;
-  double _emotionScore = 5.0;
+  final _textController = TextEditingController();
+  String _selectedMode = '위로';
 
-  final List<EmotionOption> _emotionOptions = [
-    EmotionOption(
-      emotion: 'happy',
-      label: '기쁨',
-      emoji: '😊',
-      color: AppColors.joyBlue,
-    ),
-    EmotionOption(
-      emotion: 'excited',
-      label: '신남',
-      emoji: '🤩',
-      color: AppColors.successGreen,
-    ),
-    EmotionOption(
-      emotion: 'calm',
-      label: '평온',
-      emoji: '😌',
-      color: AppColors.calmGreen,
-    ),
-    EmotionOption(
-      emotion: 'neutral',
-      label: '보통',
-      emoji: '😐',
-      color: AppColors.neutralGray,
-    ),
-    EmotionOption(
-      emotion: 'sad',
-      label: '슬픔',
-      emoji: '😢',
-      color: AppColors.sadPurple,
-    ),
-    EmotionOption(
-      emotion: 'angry',
-      label: '화남',
-      emoji: '😡',
-      color: AppColors.angryRed,
-    ),
-    EmotionOption(
-      emotion: 'anxious',
-      label: '불안',
-      emoji: '😰',
-      color: AppColors.warningOrange,
-    ),
-    EmotionOption(
-      emotion: 'tired',
-      label: '피곤',
-      emoji: '😴',
-      color: AppColors.neutralGray,
-    ),
-  ];
+  final List<String> _modes = ['위로', '팩트', '조언'];
 
   @override
   void dispose() {
-    _titleController.dispose();
-    _contentController.dispose();
+    _textController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: AppColors.cardWhite,
+        backgroundColor: Colors.white,
         elevation: 0,
-        title: Text(
-          '감정 기록하기',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
         leading: IconButton(
-          icon: Icon(Icons.close, color: AppColors.textPrimary),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => context.pop(),
         ),
-        actions: [
-          Consumer<EmotionProvider>(
-            builder: (context, emotionProvider, child) => TextButton(
-              onPressed: emotionProvider.isLoading || _selectedEmotion == null
-                  ? null
-                  : _saveEmotion,
-              child: emotionProvider.isLoading
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(
-                      '저장',
-                      style: GoogleFonts.inter(
-                        fontWeight: FontWeight.w600,
-                        color: _selectedEmotion != null ? AppColors.primaryBlue : AppColors.textTertiary,
-                        fontSize: 16,
-                      ),
-                    ),
-            ),
-          ),
-        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildEmotionSelectionSection(),
+            // 제목
+            Text(
+              '오늘 당신의 감정을\n들려주세요',
+              style: GoogleFonts.inter(
+                fontSize: 28,
+                fontWeight: FontWeight.w700,
+                color: Colors.black,
+                height: 1.2,
+              ),
+            ),
+            const SizedBox(height: 40),
+            
+            // 텍스트 입력 영역
+            Expanded(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F9FA),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: TextField(
+                  controller: _textController,
+                  maxLines: null,
+                  expands: true,
+                  textAlignVertical: TextAlignVertical.top,
+                  decoration: InputDecoration(
+                    hintText: '마음을 자유롭게 적어보세요...',
+                    hintStyle: GoogleFonts.inter(
+                      fontSize: 16,
+                      color: const Color(0xFF9CA3AF),
+                    ),
+                    border: InputBorder.none,
+                  ),
+                  style: GoogleFonts.inter(
+                    fontSize: 16,
+                    color: Colors.black,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ),
+            
             const SizedBox(height: 24),
-            if (_selectedEmotion != null) ...[
-              _buildIntensitySection(),
-              const SizedBox(height: 24),
-            ],
-            _buildTitleSection(),
+            
+            // 모드 선택
+            Row(
+              children: _modes.map((mode) {
+                final isSelected = _selectedMode == mode;
+                return Expanded(
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _selectedMode = mode;
+                      });
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      decoration: BoxDecoration(
+                        color: isSelected ? const Color(0xFF3B82F6) : Colors.transparent,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: isSelected ? const Color(0xFF3B82F6) : const Color(0xFFE5E7EB),
+                        ),
+                      ),
+                      child: Text(
+                        mode,
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.inter(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          color: isSelected ? Colors.white : const Color(0xFF6B7280),
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+            
             const SizedBox(height: 24),
-            _buildContentSection(),
-            const SizedBox(height: 24),
+            
+            // AI 분석 버튼
+            Consumer<EmotionProvider>(
+              builder: (context, emotionProvider, child) {
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: emotionProvider.isLoading || _textController.text.trim().isEmpty
+                        ? null
+                        : _analyzeEmotion,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF8B9DC3),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: emotionProvider.isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Text(
+                            'AI 분석 하기',
+                            style: GoogleFonts.inter(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                  ),
+                );
+              },
+            ),
+            
+            // 에러 메시지
             Consumer<EmotionProvider>(
               builder: (context, emotionProvider, child) {
                 if (emotionProvider.errorMessage != null) {
                   return Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 16),
+                    margin: const EdgeInsets.only(top: 16),
                     decoration: BoxDecoration(
-                      color: AppColors.errorRed.withOpacity(0.1),
+                      color: Colors.red.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.errorRed.withOpacity(0.3)),
+                      border: Border.all(color: Colors.red.withOpacity(0.3)),
                     ),
                     child: Text(
                       emotionProvider.errorMessage!,
                       style: GoogleFonts.inter(
-                        color: AppColors.errorRed,
+                        color: Colors.red,
                         fontSize: 14,
                       ),
                     ),
@@ -163,337 +194,112 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
     );
   }
 
-  Widget _buildEmotionSelectionSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.cardWhite,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.psychology,
-                color: AppColors.primaryBlue,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '지금 느끼는 감정을 선택해주세요',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 4,
-              childAspectRatio: 1,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: _emotionOptions.length,
-            itemBuilder: (context, index) {
-              final option = _emotionOptions[index];
-              final isSelected = _selectedEmotion == option.emotion;
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedEmotion = option.emotion;
-                  });
-                },
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: isSelected ? option.color.withOpacity(0.15) : AppColors.lightGray,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isSelected ? option.color : Colors.transparent,
-                      width: 2,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        option.emoji,
-                        style: const TextStyle(fontSize: 24),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        option.label,
-                        style: GoogleFonts.inter(
-                          fontSize: 12,
-                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                          color: isSelected ? option.color : AppColors.textSecondary,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
+  void _analyzeEmotion() async {
+    final text = _textController.text.trim();
+    if (text.isEmpty) return;
 
-  Widget _buildIntensitySection() {
-    final selectedOption = _emotionOptions.firstWhere(
-      (option) => option.emotion == _selectedEmotion,
-    );
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.cardWhite,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.tune,
-                color: selectedOption.color,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '감정의 강도는 어느 정도인가요?',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Text(
-                selectedOption.emoji,
-                style: const TextStyle(fontSize: 28),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '약함',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                        Text(
-                          _emotionScore.toStringAsFixed(1),
-                          style: GoogleFonts.inter(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: selectedOption.color,
-                          ),
-                        ),
-                        Text(
-                          '강함',
-                          style: GoogleFonts.inter(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SliderTheme(
-                      data: SliderTheme.of(context).copyWith(
-                        activeTrackColor: selectedOption.color,
-                        inactiveTrackColor: selectedOption.color.withOpacity(0.3),
-                        thumbColor: selectedOption.color,
-                        overlayColor: selectedOption.color.withOpacity(0.2),
-                        trackHeight: 4,
-                      ),
-                      child: Slider(
-                        value: _emotionScore,
-                        min: 1.0,
-                        max: 10.0,
-                        divisions: 18,
-                        onChanged: (value) {
-                          setState(() {
-                            _emotionScore = value;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTitleSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.cardWhite,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.title,
-                color: AppColors.primaryBlue,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '제목',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _titleController,
-            decoration: InputDecoration(
-              hintText: '오늘의 감정을 한마디로 표현해보세요',
-              hintStyle: GoogleFonts.inter(
-                color: AppColors.textTertiary,
-                fontSize: 14,
-              ),
-              filled: true,
-              fillColor: AppColors.lightGray,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            ),
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildContentSection() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.cardWhite,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.edit,
-                color: AppColors.successGreen,
-                size: 24,
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '상세 내용',
-                style: GoogleFonts.inter(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _contentController,
-            maxLines: 5,
-            decoration: InputDecoration(
-              hintText: '감정에 대한 생각이나 상황을 자유롭게 적어보세요',
-              hintStyle: GoogleFonts.inter(
-                color: AppColors.textTertiary,
-                fontSize: 14,
-              ),
-              filled: true,
-              fillColor: AppColors.lightGray,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            ),
-            style: GoogleFonts.inter(
-              fontSize: 14,
-              color: AppColors.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _saveEmotion() {
     final emotionProvider = Provider.of<EmotionProvider>(context, listen: false);
-    emotionProvider.saveEmotion(
-      emotion: _selectedEmotion!,
-      score: _emotionScore,
-      title: _titleController.text,
-      content: _contentController.text,
-    );
-    context.pop();
-  }
-}
+    
+    // 모드를 API 요청 형식으로 변환
+    String responseType;
+    switch (_selectedMode) {
+      case '위로':
+        responseType = 'comfort';
+        break;
+      case '팩트':
+        responseType = 'fact';
+        break;
+      case '조언':
+        responseType = 'advice';
+        break;
+      default:
+        responseType = 'comfort';
+    }
 
-class EmotionOption {
-  final String emotion;
-  final String label;
-  final String emoji;
-  final Color color;
-  const EmotionOption({
-    required this.emotion,
-    required this.label,
-    required this.emoji,
-    required this.color,
-  });
+    try {
+      final result = await emotionProvider.analyzeEmotionWithOpenAI(
+        text: text,
+        responseType: responseType,
+      );
+
+      if (result != null && mounted) {
+        // 분석 결과를 보여주는 다이얼로그 또는 새 화면으로 이동
+        _showAnalysisResult(result);
+      }
+    } catch (e) {
+      // 에러는 EmotionProvider에서 처리됨
+    }
+  }
+
+  void _showAnalysisResult(Map<String, dynamic> result) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Text(
+          result['title'] ?? '감정 분석 결과',
+          style: GoogleFonts.inter(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+          ),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (result['emotion'] != null) ...[
+                Text(
+                  '감정: ${result['emotion']}',
+                  style: GoogleFonts.inter(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    color: const Color(0xFF3B82F6),
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              if (result['response'] != null) ...[
+                Text(
+                  result['response'],
+                  style: GoogleFonts.inter(
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              if (result['analyze_text'] != null) ...[
+                Text(
+                  '분석: ${result['analyze_text']}',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: const Color(0xFF6B7280),
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.pop(); // 감정 입력 화면도 닫기
+            },
+            child: Text(
+              '확인',
+              style: GoogleFonts.inter(
+                fontWeight: FontWeight.w500,
+                color: const Color(0xFF3B82F6),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 } 

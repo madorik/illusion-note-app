@@ -6,7 +6,10 @@ import '../../features/home/screens/home_screen.dart';
 import '../../features/emotion/screens/emotion_input_screen.dart';
 import '../../features/emotion/screens/analysis_result_screen.dart';
 import '../../features/history/screens/history_screen.dart';
+import '../../features/history/screens/calendar_screen.dart';
+import '../../features/history/screens/emotion_detail_screen.dart';
 import '../../shared/widgets/main_layout.dart';
+import '../../core/models/emotion_analysis_model.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -64,6 +67,13 @@ class AppRouter {
             name: 'history',
             builder: (context, state) => const HistoryScreen(),
           ),
+          
+          // Calendar
+          GoRoute(
+            path: '/calendar',
+            name: 'calendar',
+            builder: (context, state) => const CalendarScreen(),
+          ),
         ],
       ),
       
@@ -83,6 +93,16 @@ class AppRouter {
           return AnalysisResultScreen(emotionText: emotionText);
         },
       ),
+      
+      // Emotion Detail (Full Screen)
+      GoRoute(
+        path: '/emotion-detail',
+        name: 'emotion-detail',
+        builder: (context, state) {
+          final post = state.extra as EmotionPost;
+          return EmotionDetailScreen(post: post);
+        },
+      ),
     ],
   );
 }
@@ -93,6 +113,8 @@ class Routes {
   static const String login = '/login';
   static const String home = '/home';
   static const String history = '/history';
+  static const String calendar = '/calendar';
   static const String emotionInput = '/emotion-input';
   static const String analysisResult = '/analysis-result';
+  static const String emotionDetail = '/emotion-detail';
 } 

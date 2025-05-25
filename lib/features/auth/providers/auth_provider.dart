@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../../../services/service_locator.dart';
+import '../../../core/models/google_auth_model.dart';
 
 class AuthProvider extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -9,11 +11,13 @@ class AuthProvider extends ChangeNotifier {
   User? _user;
   bool _isLoading = false;
   String? _errorMessage;
+  GoogleLoginResponse? _serverAuthResponse;
 
   User? get user => _user;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   bool get isAuthenticated => _user != null;
+  GoogleLoginResponse? get serverAuthResponse => _serverAuthResponse;
 
   AuthProvider() {
     _auth.authStateChanges().listen((User? user) {
@@ -47,6 +51,15 @@ class AuthProvider extends ChangeNotifier {
       final GoogleSignInAuthentication googleAuth = 
           await googleUser.authentication;
 
+      // 🔥 ID TOKEN 콘솔 출력
+      print('=== GOOGLE SIGN IN ID TOKEN ===');
+      print('ID Token: ${googleAuth.idToken}');
+      print('Access Token: ${googleAuth.accessToken}');
+      print('User Email: ${googleUser.email}');
+      print('User Name: ${googleUser.displayName}');
+      print('User ID: ${googleUser.id}');
+      print('===============================');
+
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -54,6 +67,26 @@ class AuthProvider extends ChangeNotifier {
 
       final UserCredential userCredential = 
           await _auth.signInWithCredential(credential);
+      
+      // Firebase User ID Token도 출력
+      final firebaseIdToken = await userCredential.user?.getIdToken();
+      print('=== FIREBASE ID TOKEN ===');
+      print('Firebase ID Token: $firebaseIdToken');
+      print('Firebase UID: ${userCredential.user?.uid}');
+      print('========================');
+      
+      // 🔥 서버 API 호출하여 우리 서버의 인증 토큰 받아오기
+      try {
+        if (googleAuth.idToken != null) {
+          print('=== 서버 API 호출 시작 ===');
+          _serverAuthResponse = await services.authService.googleLogin(googleAuth.idToken!);
+          print('서버 인증 성공: ${_serverAuthResponse?.user.name}');
+          print('=========================');
+        }
+      } catch (e) {
+        print('서버 인증 실패: $e');
+        // 서버 인증이 실패해도 Firebase 로그인은 유지
+      }
       
       _user = userCredential.user;
       _setLoading(false);
@@ -147,11 +180,21 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signOut() async {
     try {
       _setLoading(true);
+      
+      // 서버 로그아웃 시도
+      try {
+        await services.authService.logout();
+      } catch (e) {
+        print('서버 로그아웃 실패: $e');
+      }
+      
       await Future.wait([
         _auth.signOut(),
         _googleSignIn.signOut(),
       ]);
+      
       _user = null;
+      _serverAuthResponse = null;
       _setLoading(false);
     } catch (e) {
       _setError('로그아웃에 실패했습니다: ${e.toString()}');

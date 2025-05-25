@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/history_provider.dart';
 import '../../emotion/providers/emotion_provider.dart';
+import '../../../core/models/emotion_analysis_model.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -15,12 +17,25 @@ class HistoryScreen extends StatefulWidget {
 class _HistoryScreenState extends State<HistoryScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _scrollController = ScrollController();
+    _setupScrollListener();
     _loadData();
+  }
+
+  void _setupScrollListener() {
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+        // 스크롤이 끝에서 200px 전에 도달하면 더 많은 데이터 로드
+        final historyProvider = Provider.of<HistoryProvider>(context, listen: false);
+        historyProvider.loadMoreEntries();
+      }
+    });
   }
 
   void _loadData() {
@@ -31,6 +46,7 @@ class _HistoryScreenState extends State<HistoryScreen>
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -38,6 +54,31 @@ class _HistoryScreenState extends State<HistoryScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          '기록',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        centerTitle: false,
+        actions: [
+          IconButton(
+            onPressed: () {
+              context.push('/calendar');
+            },
+            icon: const Icon(
+              Icons.calendar_today,
+              color: Color(0xFF6B73FF),
+            ),
+            tooltip: '달력 보기',
+          ),
+        ],
+      ),
       body: Column(
         children: [
           // 탭 바
@@ -118,7 +159,7 @@ class _HistoryScreenState extends State<HistoryScreen>
           );
         }
 
-        if (historyProvider.recentEntries.isEmpty) {
+        if (historyProvider.emotionPosts.isEmpty) {
           return Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -149,7 +190,7 @@ class _HistoryScreenState extends State<HistoryScreen>
                 ElevatedButton.icon(
                   onPressed: () {
                     // 감정 입력 화면으로 이동
-                    Navigator.of(context).pushNamed('/emotion-input');
+                    context.push('/emotion-input');
                   },
                   icon: const Icon(Icons.add),
                   label: const Text(
@@ -166,17 +207,140 @@ class _HistoryScreenState extends State<HistoryScreen>
             await historyProvider.loadRecentEntries();
           },
           child: ListView.builder(
+            controller: _scrollController,
             padding: const EdgeInsets.all(16),
-            itemCount: historyProvider.recentEntries.length,
+            itemCount: historyProvider.emotionPosts.length + (historyProvider.hasMoreData ? 1 : 0),
             itemBuilder: (context, index) {
-              final entry = historyProvider.recentEntries[index];
-              return _buildHistoryCard(entry);
+              if (index == historyProvider.emotionPosts.length) {
+                // 로딩 인디케이터
+                return _buildLoadingIndicator(historyProvider);
+              }
+              
+              final post = historyProvider.emotionPosts[index];
+              return _buildEmotionPostCard(post);
             },
           ),
         );
       },
     );
   }
+
+  Widget _buildLoadingIndicator(HistoryProvider historyProvider) {
+    if (!historyProvider.isLoadingMore) return const SizedBox();
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+  }
+
+  Widget _buildEmotionPostCard(EmotionPost post) {
+    return GestureDetector(
+      onTap: () => context.push('/emotion-detail', extra: post),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: _getEmotionColorFromString(post.emotion).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    post.emotion,
+                    style: TextStyle(
+                      color: _getEmotionColorFromString(post.emotion),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  DateFormat('MM월 dd일 HH:mm').format(post.createdAt),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: Color(0xFF718096),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              post.title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF2D3748),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              post.text,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF4A5568),
+              ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (post.response.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF7FAFC),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.psychology,
+                      color: Color(0xFF6B73FF),
+                      size: 16,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        post.response,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          color: Color(0xFF4A5568),
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+
 
   Widget _buildHistoryCard(EmotionEntry entry) {
     return Container(
@@ -733,6 +897,33 @@ class _HistoryScreenState extends State<HistoryScreen>
         return const Color(0xFF9F7AEA);
       case 'tired':
         return const Color(0xFF718096);
+      default:
+        return const Color(0xFF718096);
+    }
+  }
+
+  Color _getEmotionColorFromString(String emotion) {
+    switch (emotion) {
+      case '기쁨':
+      case '행복':
+        return Colors.orange;
+      case '슬픔':
+      case '우울':
+        return Colors.blue;
+      case '화남':
+      case '분노':
+        return Colors.red;
+      case '불안':
+      case '걱정':
+        return Colors.purple;
+      case '놀람':
+        return Colors.green;
+      case '평온':
+      case '차분':
+        return Colors.teal;
+      case '피곤':
+      case '지침':
+        return Colors.grey;
       default:
         return const Color(0xFF718096);
     }

@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
 import '../../emotion/providers/emotion_provider.dart';
+import '../../../core/models/emotion_analysis_model.dart';
+import '../../../services/service_locator.dart';
 
 class HistoryProvider extends ChangeNotifier {
-  List<EmotionEntry> _recentEntries = [];
+  List<EmotionPost> _emotionPosts = [];
   bool _isLoading = false;
+  bool _isLoadingMore = false;
+  bool _hasMoreData = true;
   String? _errorMessage;
+  int _currentPage = 0;
+  static const int _pageSize = 10;
 
-  List<EmotionEntry> get recentEntries => _recentEntries;
+  List<EmotionPost> get emotionPosts => _emotionPosts;
+  List<EmotionEntry> get recentEntries => []; // 호환성을 위해 유지
   bool get isLoading => _isLoading;
+  bool get isLoadingMore => _isLoadingMore;
+  bool get hasMoreData => _hasMoreData;
   String? get errorMessage => _errorMessage;
 
   void _setLoading(bool loading) {
@@ -20,21 +29,78 @@ class HistoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // 최근 기록들 로드
+  // 최근 기록들 로드 (첫 페이지)
   Future<void> loadRecentEntries() async {
     try {
       _setLoading(true);
       _setError(null);
+      _currentPage = 0;
+      _hasMoreData = true;
 
-      // TODO: Firebase Firestore에서 최근 기록들 로드
-      // 임시로 빈 리스트로 설정
-      await Future.delayed(const Duration(milliseconds: 500));
+      print('=== 첫 페이지 감정 기록 로드 ===');
+      final recentEmotions = await services.emotionService.getRecentEmotions(count: _pageSize);
       
-      _recentEntries = [];
+      _emotionPosts = recentEmotions.posts;
+      _hasMoreData = recentEmotions.posts.length >= _pageSize;
+      
+      print('로드된 기록 수: ${_emotionPosts.length}');
+      print('더 많은 데이터 있음: $_hasMoreData');
+      print('============================');
+      
       _setLoading(false);
     } catch (e) {
+      print('최근 기록 로드 실패: $e');
       _setError('최근 기록 로드에 실패했습니다: ${e.toString()}');
       _setLoading(false);
+    }
+  }
+
+  // 더 많은 기록들 로드 (다음 페이지)
+  Future<void> loadMoreEntries() async {
+    if (_isLoadingMore || !_hasMoreData) return;
+
+    try {
+      _isLoadingMore = true;
+      notifyListeners();
+
+      print('=== 추가 감정 기록 로드 ===');
+      print('현재 페이지: $_currentPage');
+      print('현재 기록 수: ${_emotionPosts.length}');
+      
+      // 더 많은 데이터를 가져오기 위해 큰 수로 요청
+      // 실제 서버에서는 offset/limit을 지원해야 함
+      final recentEmotions = await services.emotionService.getRecentEmotions(count: 100);
+      
+      // 현재 가지고 있는 기록보다 더 많은 기록이 있는지 확인
+      if (recentEmotions.posts.length > _emotionPosts.length) {
+        // 새로운 기록들만 추가
+        final newPosts = recentEmotions.posts.skip(_emotionPosts.length).take(_pageSize).toList();
+        
+        if (newPosts.isNotEmpty) {
+          _emotionPosts.addAll(newPosts);
+          _currentPage++;
+        }
+        
+        // 더 많은 데이터가 있는지 확인
+        _hasMoreData = recentEmotions.posts.length > _emotionPosts.length;
+        
+        print('새로 로드된 기록 수: ${newPosts.length}');
+        print('총 기록 수: ${_emotionPosts.length}');
+        print('서버 총 기록 수: ${recentEmotions.posts.length}');
+        print('더 많은 데이터 있음: $_hasMoreData');
+      } else {
+        _hasMoreData = false;
+        print('더 이상 로드할 데이터가 없습니다');
+      }
+      
+      print('========================');
+      
+      _isLoadingMore = false;
+      notifyListeners();
+    } catch (e) {
+      print('추가 기록 로드 실패: $e');
+      _isLoadingMore = false;
+      notifyListeners();
     }
   }
 
@@ -56,15 +122,7 @@ class HistoryProvider extends ChangeNotifier {
     }
   }
 
-  // 주간 통계 가져오기
-  Map<String, dynamic> getWeeklyStats() {
-    // TODO: 실제 통계 계산 로직 구현
-    return {
-      'total': 0,
-      'avgScore': '0.0',
-      'streak': 0,
-    };
-  }
+
 
   // 월별 통계 가져오기
   Map<String, dynamic> getMonthlyStats() {
@@ -101,11 +159,46 @@ class HistoryProvider extends ChangeNotifier {
   Map<String, int> getEmotionCounts() {
     final counts = <String, int>{};
     
-    for (final entry in _recentEntries) {
-      counts[entry.emotion] = (counts[entry.emotion] ?? 0) + 1;
+    for (final post in _emotionPosts) {
+      counts[post.emotion] = (counts[post.emotion] ?? 0) + 1;
     }
     
     return counts;
+  }
+
+  // 주간 통계 계산 (실제 데이터 기반)
+  Map<String, dynamic> getWeeklyStats() {
+    final now = DateTime.now();
+    final weekStart = now.subtract(Duration(days: now.weekday % 7));
+    final weekEnd = weekStart.add(const Duration(days: 6));
+    
+    final weeklyPosts = _emotionPosts.where((post) {
+      return post.createdAt.isAfter(weekStart) && post.createdAt.isBefore(weekEnd.add(const Duration(days: 1)));
+    }).toList();
+    
+    // 연속 기록 일수 계산
+    int streak = 0;
+    final today = DateTime.now();
+    for (int i = 0; i < 30; i++) {
+      final checkDate = today.subtract(Duration(days: i));
+      final hasRecord = _emotionPosts.any((post) {
+        return post.createdAt.year == checkDate.year &&
+               post.createdAt.month == checkDate.month &&
+               post.createdAt.day == checkDate.day;
+      });
+      
+      if (hasRecord) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    
+    return {
+      'total': weeklyPosts.length,
+      'avgScore': weeklyPosts.isEmpty ? '0.0' : '4.2', // 임시 평균값
+      'streak': streak,
+    };
   }
 
   // 에러 메시지 클리어

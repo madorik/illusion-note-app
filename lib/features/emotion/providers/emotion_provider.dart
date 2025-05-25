@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/emotion_analysis.dart';
+import '../../../services/service_locator.dart';
 // import '../../../services/openai_service.dart';
 
 class EmotionEntry {
@@ -354,5 +355,51 @@ class EmotionProvider extends ChangeNotifier {
       content: content,
       score: score,
     );
+  }
+
+  // 운영 API를 사용한 감정 분석
+  Future<Map<String, dynamic>?> analyzeEmotionWithOpenAI({
+    required String text,
+    String? moodId,
+    String mode = 'chat',
+    String responseType = 'comfort',
+    String? context,
+  }) async {
+    try {
+      _setLoading(true);
+      _setError(null);
+
+      print('=== 감정 분석 API 호출 ===');
+      print('텍스트: $text');
+      print('응답 타입: $responseType');
+      print('모드: $mode');
+
+      final result = await services.emotionService.analyzeEmotionOpenAI(
+        text: text,
+        moodId: moodId ?? '',
+        mode: mode,
+        responseType: responseType,
+        context: context ?? '',
+      );
+
+      print('분석 결과: $result');
+      print('========================');
+
+      _setLoading(false);
+      
+      // EmotionAnalysisResponse를 Map으로 변환
+      return {
+        'emotion': result.emotion,
+        'response': result.response,
+        'analyze_text': result.analyzeText,
+        'summary': result.summary,
+        'title': result.title,
+      };
+    } catch (e) {
+      print('감정 분석 실패: $e');
+      _setError('감정 분석에 실패했습니다: ${e.toString()}');
+      _setLoading(false);
+      return null;
+    }
   }
 } 
