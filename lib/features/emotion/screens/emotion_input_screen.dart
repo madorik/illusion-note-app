@@ -14,9 +14,31 @@ class EmotionInputScreen extends StatefulWidget {
 
 class _EmotionInputScreenState extends State<EmotionInputScreen> {
   final _textController = TextEditingController();
-  String _selectedMode = '위로';
+  String _selectedResponseType = 'comfort';
 
-  final List<String> _modes = ['위로', '팩트', '조언'];
+  final List<Map<String, dynamic>> _responseTypes = [
+    {
+      'id': 'comfort',
+      'title': '위로받고 싶어요',
+      'subtitle': '따뜻한 공감과 위로를 받고 싶을 때',
+      'icon': Icons.favorite_rounded,
+      'color': Color(0xFFFF6B9D),
+    },
+    {
+      'id': 'advice',
+      'title': '조언이 필요해요',
+      'subtitle': '구체적인 해결책과 조언을 원할 때',
+      'icon': Icons.lightbulb_rounded,
+      'color': Color(0xFF4ECDC4),
+    },
+    {
+      'id': 'empathy',
+      'title': '팩트로 말해주세요',
+      'subtitle': '객관적이고 사실적인 분석을 원할 때',
+      'icon': Icons.analytics_rounded,
+      'color': Color(0xFF6C5CE7),
+    },
+  ];
 
   @override
   void dispose() {
@@ -32,9 +54,18 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
           onPressed: () => context.pop(),
         ),
+        title: Text(
+          '감정 기록',
+          style: GoogleFonts.inter(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -43,7 +74,7 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
           children: [
             // 제목
             Text(
-              '오늘 당신의 감정을\n들려주세요',
+              '오늘 어떤 일이\n있었나요?',
               style: GoogleFonts.inter(
                 fontSize: 28,
                 fontWeight: FontWeight.w700,
@@ -51,88 +82,153 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
                 height: 1.2,
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: 8),
+            Text(
+              '당신의 감정과 생각을 자유롭게 표현해보세요.\nAI가 따뜻하게 들어드릴게요.',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                color: const Color(0xFF6B7280),
+                height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 32),
             
             // 텍스트 입력 영역
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF8F9FA),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: TextField(
-                  controller: _textController,
-                  maxLines: null,
-                  expands: true,
-                  textAlignVertical: TextAlignVertical.top,
-                  decoration: InputDecoration(
-                    hintText: '마음을 자유롭게 적어보세요...',
-                    hintStyle: GoogleFonts.inter(
-                      fontSize: 16,
-                      color: const Color(0xFF9CA3AF),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  height: 150,
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF9FAFB),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: const Color(0xFFE5E7EB),
                     ),
-                    border: InputBorder.none,
                   ),
-                  style: GoogleFonts.inter(
-                    fontSize: 16,
-                    color: Colors.black,
-                    height: 1.5,
+                  child: TextField(
+                    controller: _textController,
+                    maxLines: null,
+                    maxLength: 100,
+                    textAlignVertical: TextAlignVertical.top,
+                    decoration: InputDecoration(
+                      hintText: '예: 오늘 회사에서 프레젠테이션을 했는데 너무 떨렸어요...',
+                      hintStyle: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: const Color(0xFF9CA3AF),
+                      ),
+                      border: InputBorder.none,
+                      counterText: '',
+                    ),
+                    style: GoogleFonts.inter(
+                      fontSize: 16,
+                      color: Colors.black,
+                      height: 1.5,
+                    ),
+                    onChanged: (value) => setState(() {}),
                   ),
                 ),
-              ),
+                const SizedBox(height: 8),
+                Text(
+                  '${_textController.text.length}/100',
+                  style: GoogleFonts.inter(
+                    fontSize: 12,
+                    color: _textController.text.length > 90 
+                        ? Colors.red 
+                        : const Color(0xFF9CA3AF),
+                  ),
+                ),
+              ],
             ),
             
             const SizedBox(height: 24),
             
-            // 모드 선택
-            Row(
-              children: _modes.map((mode) {
-                final isSelected = _selectedMode == mode;
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedMode = mode;
-                      });
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFF3B82F6) : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: isSelected ? const Color(0xFF3B82F6) : const Color(0xFFE5E7EB),
-                        ),
-                      ),
-                      child: Text(
-                        mode,
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                          color: isSelected ? Colors.white : const Color(0xFF6B7280),
-                        ),
+            // AI 응답 타입 선택
+            Text(
+              'AI에게 어떤 답변을 원하시나요?',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '상황에 맞는 AI의 응답 스타일을 선택해주세요',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: const Color(0xFF6B7280),
+              ),
+            ),
+            const SizedBox(height: 16),
+            
+            // 응답 타입 버튼들
+            ...List.generate(_responseTypes.length, (index) {
+              final type = _responseTypes[index];
+              final isSelected = _selectedResponseType == type['id'];
+              
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _selectedResponseType = type['id'];
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isSelected ? type['color'] : Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: isSelected ? type['color'] : const Color(0xFFE5E7EB),
+                        width: 1,
                       ),
                     ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          type['icon'],
+                          color: isSelected ? Colors.white : type['color'],
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            type['title'],
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: isSelected ? Colors.white : Colors.black,
+                            ),
+                          ),
+                        ),
+                        if (isSelected)
+                          const Icon(
+                            Icons.check_circle,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                      ],
+                    ),
                   ),
-                );
-              }).toList(),
-            ),
+                ),
+              );
+            }),
             
             const SizedBox(height: 24),
             
             // AI 분석 버튼
             Consumer<EmotionProvider>(
               builder: (context, emotionProvider, child) {
+                final isEnabled = !emotionProvider.isLoading && _textController.text.trim().isNotEmpty;
+                
                 return SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: emotionProvider.isLoading || _textController.text.trim().isEmpty
-                        ? null
-                        : _analyzeEmotion,
+                    onPressed: isEnabled ? _analyzeEmotion : null,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF8B9DC3),
                       foregroundColor: Colors.white,
@@ -200,30 +296,13 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
 
     final emotionProvider = Provider.of<EmotionProvider>(context, listen: false);
     
-    // 모드를 API 요청 형식으로 변환
-    String responseType;
-    switch (_selectedMode) {
-      case '위로':
-        responseType = 'comfort';
-        break;
-      case '팩트':
-        responseType = 'fact';
-        break;
-      case '조언':
-        responseType = 'advice';
-        break;
-      default:
-        responseType = 'comfort';
-    }
-
     try {
       final result = await emotionProvider.analyzeEmotionWithOpenAI(
         text: text,
-        responseType: responseType,
+        responseType: _selectedResponseType,
       );
 
       if (result != null && mounted) {
-        // 분석 결과를 보여주는 다이얼로그 또는 새 화면으로 이동
         _showAnalysisResult(result);
       }
     } catch (e) {
@@ -271,16 +350,6 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
                 ),
                 const SizedBox(height: 12),
               ],
-              if (result['analyze_text'] != null) ...[
-                Text(
-                  '분석: ${result['analyze_text']}',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: const Color(0xFF6B7280),
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-              ],
             ],
           ),
         ),
@@ -288,7 +357,7 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              context.pop(); // 감정 입력 화면도 닫기
+              context.pop(true); // 감정 입력 화면도 닫기
             },
             child: Text(
               '확인',

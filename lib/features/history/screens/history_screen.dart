@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../providers/history_provider.dart';
 import '../../emotion/providers/emotion_provider.dart';
 import '../../../core/models/emotion_analysis_model.dart';
+import '../../../core/utils/time_utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -277,7 +278,7 @@ class _HistoryScreenState extends State<HistoryScreen>
                             ),
                             const Spacer(),
                             Text(
-                              _getTimeAgo(post.createdAt),
+                              TimeUtils.getRelativeTime(post.createdAt),
                               style: GoogleFonts.inter(
                                 fontSize: 12,
                                 color: const Color(0xFF718096),
@@ -288,7 +289,7 @@ class _HistoryScreenState extends State<HistoryScreen>
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          DateFormat('yyyy년 MM월 dd일 HH:mm').format(post.createdAt),
+                          TimeUtils.getSmartDateTimeDisplay(post.createdAt),
                           style: GoogleFonts.inter(
                             fontSize: 11,
                             color: const Color(0xFF9CA3AF),
@@ -835,18 +836,5 @@ class _HistoryScreenState extends State<HistoryScreen>
     }
   }
 
-  String _getTimeAgo(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
 
-    if (difference.inDays > 0) {
-      return '${difference.inDays}일 전';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}시간 전';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}분 전';
-    } else {
-      return '방금 전';
-    }
-  }
 } 

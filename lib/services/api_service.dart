@@ -25,15 +25,12 @@ class ApiService {
         onRequest: (options, handler) async {
           // 토큰이 필요한 경우 헤더에 추가
           final token = await _getToken();
-          print('token: $token');
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
           handler.next(options);
         },
         onError: (error, handler) {
-          // 에러 로깅
-          print('API Error: ${error.message}');
           if (error.response?.statusCode == 401) {
             // 토큰 만료 처리
             _handleTokenExpired();

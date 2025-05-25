@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/emotion_analysis_model.dart';
+import '../../../core/utils/time_utils.dart';
 import '../../../services/service_locator.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -21,7 +22,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedDate = DateTime.now();
+    _selectedDate = TimeUtils.nowInKorea();
     _loadAllPosts();
   }
 
@@ -40,7 +41,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       // 선택된 날짜의 기록 필터링
       _filterPostsForDate(_selectedDate!);
     } catch (e) {
-      print('기록 조회 실패: $e');
       setState(() {
         _allPosts = [];
         _selectedDatePosts = [];
@@ -54,9 +54,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   void _filterPostsForDate(DateTime date) {
     final filteredPosts = _allPosts.where((post) {
-      return post.createdAt.year == date.year &&
-             post.createdAt.month == date.month &&
-             post.createdAt.day == date.day;
+      final koreaPostDate = post.createdAt.isUtc ? TimeUtils.toKoreaTime(post.createdAt) : post.createdAt;
+      final koreaFilterDate = date.isUtc ? TimeUtils.toKoreaTime(date) : date;
+      return koreaPostDate.year == koreaFilterDate.year &&
+             koreaPostDate.month == koreaFilterDate.month &&
+             koreaPostDate.day == koreaFilterDate.day;
     }).toList();
 
     setState(() {
@@ -66,9 +68,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   bool _hasPostsOnDate(DateTime date) {
     return _allPosts.any((post) {
-      return post.createdAt.year == date.year &&
-             post.createdAt.month == date.month &&
-             post.createdAt.day == date.day;
+      final koreaPostDate = post.createdAt.isUtc ? TimeUtils.toKoreaTime(post.createdAt) : post.createdAt;
+      final koreaFilterDate = date.isUtc ? TimeUtils.toKoreaTime(date) : date;
+      return koreaPostDate.year == koreaFilterDate.year &&
+             koreaPostDate.month == koreaFilterDate.month &&
+             koreaPostDate.day == koreaFilterDate.day;
     });
   }
 
@@ -231,9 +235,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
               _selectedDate!.year == date.year &&
               _selectedDate!.month == date.month &&
               _selectedDate!.day == date.day;
-          final isToday = DateTime.now().year == date.year &&
-              DateTime.now().month == date.month &&
-              DateTime.now().day == date.day;
+          final koreaToday = TimeUtils.nowInKorea();
+          final isToday = koreaToday.year == date.year &&
+              koreaToday.month == date.month &&
+              koreaToday.day == date.day;
 
           // 요일별 색상
           final weekday = index % 7;
@@ -406,7 +411,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
               const Spacer(),
               Text(
-                '${post.createdAt.hour.toString().padLeft(2, '0')}:${post.createdAt.minute.toString().padLeft(2, '0')}',
+                TimeUtils.getRelativeTime(post.createdAt),
                 style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 12,

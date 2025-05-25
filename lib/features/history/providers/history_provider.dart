@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../emotion/providers/emotion_provider.dart';
 import '../../../core/models/emotion_analysis_model.dart';
+import '../../../core/utils/time_utils.dart';
 import '../../../services/service_locator.dart';
 
 // 주간 통계 모델
@@ -69,19 +70,13 @@ class HistoryProvider extends ChangeNotifier {
       _currentPage = 0;
       _hasMoreData = true;
 
-      print('=== 첫 페이지 감정 기록 로드 ===');
       final recentEmotions = await services.emotionService.getRecentEmotions(count: _pageSize);
       
       _emotionPosts = recentEmotions.posts;
       _hasMoreData = recentEmotions.posts.length >= _pageSize;
       
-      print('로드된 기록 수: ${_emotionPosts.length}');
-      print('더 많은 데이터 있음: $_hasMoreData');
-      print('============================');
-      
       _setLoading(false);
     } catch (e) {
-      print('최근 기록 로드 실패: $e');
       _setError('최근 기록 로드에 실패했습니다: ${e.toString()}');
       _setLoading(false);
     }
@@ -95,10 +90,6 @@ class HistoryProvider extends ChangeNotifier {
       _isLoadingMore = true;
       notifyListeners();
 
-      print('=== 추가 감정 기록 로드 ===');
-      print('현재 페이지: $_currentPage');
-      print('현재 기록 수: ${_emotionPosts.length}');
-      
       // 더 많은 데이터를 가져오기 위해 큰 수로 요청
       // 실제 서버에서는 offset/limit을 지원해야 함
       final recentEmotions = await services.emotionService.getRecentEmotions(count: 100);
@@ -115,22 +106,13 @@ class HistoryProvider extends ChangeNotifier {
         
         // 더 많은 데이터가 있는지 확인
         _hasMoreData = recentEmotions.posts.length > _emotionPosts.length;
-        
-        print('새로 로드된 기록 수: ${newPosts.length}');
-        print('총 기록 수: ${_emotionPosts.length}');
-        print('서버 총 기록 수: ${recentEmotions.posts.length}');
-        print('더 많은 데이터 있음: $_hasMoreData');
       } else {
         _hasMoreData = false;
-        print('더 이상 로드할 데이터가 없습니다');
       }
-      
-      print('========================');
       
       _isLoadingMore = false;
       notifyListeners();
     } catch (e) {
-      print('추가 기록 로드 실패: $e');
       _isLoadingMore = false;
       notifyListeners();
     }
@@ -198,19 +180,21 @@ class HistoryProvider extends ChangeNotifier {
 
   // 주간 통계 계산 (실제 데이터 기반)
   Map<String, dynamic> getWeeklyStats() {
-    final now = DateTime.now();
+    final now = TimeUtils.nowInKorea();
     final weekStart = now.subtract(Duration(days: now.weekday % 7));
     final weekEnd = weekStart.add(const Duration(days: 6));
     
     final weeklyPosts = _emotionPosts.where((post) {
-      return post.createdAt.isAfter(weekStart) && post.createdAt.isBefore(weekEnd.add(const Duration(days: 1)));
+      final koreaPostDate = post.createdAt.isUtc ? TimeUtils.toKoreaTime(post.createdAt) : post.createdAt;
+      return koreaPostDate.isAfter(weekStart) && koreaPostDate.isBefore(weekEnd.add(const Duration(days: 1)));
     }).toList();
     
     // 지난 주 데이터 계산
     final lastWeekStart = weekStart.subtract(const Duration(days: 7));
     final lastWeekEnd = weekStart.subtract(const Duration(days: 1));
     final lastWeekPosts = _emotionPosts.where((post) {
-      return post.createdAt.isAfter(lastWeekStart) && post.createdAt.isBefore(lastWeekEnd.add(const Duration(days: 1)));
+      final koreaPostDate = post.createdAt.isUtc ? TimeUtils.toKoreaTime(post.createdAt) : post.createdAt;
+      return koreaPostDate.isAfter(lastWeekStart) && koreaPostDate.isBefore(lastWeekEnd.add(const Duration(days: 1)));
     }).toList();
     
     // 가장 많은 감정 계산
@@ -230,13 +214,14 @@ class HistoryProvider extends ChangeNotifier {
     
     // 연속 기록 일수 계산
     int streak = 0;
-    final today = DateTime.now();
+    final today = TimeUtils.nowInKorea();
     for (int i = 0; i < 30; i++) {
       final checkDate = today.subtract(Duration(days: i));
       final hasRecord = _emotionPosts.any((post) {
-        return post.createdAt.year == checkDate.year &&
-               post.createdAt.month == checkDate.month &&
-               post.createdAt.day == checkDate.day;
+        final koreaPostDate = post.createdAt.isUtc ? TimeUtils.toKoreaTime(post.createdAt) : post.createdAt;
+        return koreaPostDate.year == checkDate.year &&
+               koreaPostDate.month == checkDate.month &&
+               koreaPostDate.day == checkDate.day;
       });
       
       if (hasRecord) {

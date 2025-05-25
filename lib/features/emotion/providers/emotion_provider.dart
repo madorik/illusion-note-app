@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/emotion_analysis.dart';
+import '../../../core/utils/time_utils.dart';
 import '../../../services/service_locator.dart';
 // import '../../../services/openai_service.dart';
 
@@ -46,13 +47,14 @@ class EmotionProvider extends ChangeNotifier {
 
   // 오늘의 감정 엔트리들 가져오기
   List<EmotionEntry> getTodayEntries() {
-    final today = DateTime.now();
+    final today = TimeUtils.nowInKorea();
     final startOfDay = DateTime(today.year, today.month, today.day);
     final endOfDay = startOfDay.add(const Duration(days: 1));
     
     return _entries.where((entry) {
-      return entry.createdAt.isAfter(startOfDay) && 
-             entry.createdAt.isBefore(endOfDay);
+      final koreaEntryDate = entry.createdAt.isUtc ? TimeUtils.toKoreaTime(entry.createdAt) : entry.createdAt;
+      return koreaEntryDate.isAfter(startOfDay) && 
+             koreaEntryDate.isBefore(endOfDay);
     }).toList();
   }
 
@@ -168,13 +170,14 @@ class EmotionProvider extends ChangeNotifier {
 
   // 주간 통계 가져오기
   Map<String, dynamic> getWeeklyStats() {
-    final now = DateTime.now();
+    final now = TimeUtils.nowInKorea();
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
     final endOfWeek = startOfWeek.add(const Duration(days: 7));
     
     final weekEntries = _entries.where((entry) {
-      return entry.createdAt.isAfter(startOfWeek) && 
-             entry.createdAt.isBefore(endOfWeek);
+      final koreaEntryDate = entry.createdAt.isUtc ? TimeUtils.toKoreaTime(entry.createdAt) : entry.createdAt;
+      return koreaEntryDate.isAfter(startOfWeek) && 
+             koreaEntryDate.isBefore(endOfWeek);
     }).toList();
 
     final totalEntries = weekEntries.length;
@@ -369,11 +372,6 @@ class EmotionProvider extends ChangeNotifier {
       _setLoading(true);
       _setError(null);
 
-      print('=== 감정 분석 API 호출 ===');
-      print('텍스트: $text');
-      print('응답 타입: $responseType');
-      print('모드: $mode');
-
       final result = await services.emotionService.analyzeEmotionOpenAI(
         text: text,
         moodId: moodId ?? '',
@@ -381,9 +379,6 @@ class EmotionProvider extends ChangeNotifier {
         responseType: responseType,
         context: context ?? '',
       );
-
-      print('분석 결과: $result');
-      print('========================');
 
       _setLoading(false);
       
@@ -396,7 +391,6 @@ class EmotionProvider extends ChangeNotifier {
         'title': result.title,
       };
     } catch (e) {
-      print('감정 분석 실패: $e');
       _setError('감정 분석에 실패했습니다: ${e.toString()}');
       _setLoading(false);
       return null;

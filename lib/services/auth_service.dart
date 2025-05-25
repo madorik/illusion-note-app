@@ -14,10 +14,6 @@ class AuthService {
       final response = await _apiService.post('/api/token-auth/google-login', 
           data: request.toJson(), requireAuth: false);
       
-      print('=== 구글 로그인 API 응답 ===');
-      print('Response: ${response.data}');
-      print('========================');
-      
       if (response.data != null) {
         final googleLoginResponse = GoogleLoginResponse.fromJson(response.data);
         
@@ -25,18 +21,11 @@ class AuthService {
         await _saveToken(googleLoginResponse.accessToken);
         await _saveRefreshToken(googleLoginResponse.refreshToken);
         
-        print('=== 서버 인증 토큰 저장 완료 ===');
-        print('Access Token: ${googleLoginResponse.accessToken}');
-        print('Refresh Token: ${googleLoginResponse.refreshToken}');
-        print('User: ${googleLoginResponse.user}');
-        print('==============================');
-        
         return googleLoginResponse;
       } else {
         throw Exception('서버 응답이 비어있습니다');
       }
     } catch (e) {
-      print('구글 로그인 API 오류: $e');
       throw Exception('구글 로그인 실패: $e');
     }
   }

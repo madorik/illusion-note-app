@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/models/emotion_analysis_model.dart';
+import '../../../core/utils/time_utils.dart';
 
 class EmotionDetailScreen extends StatelessWidget {
   final EmotionPost post;
@@ -116,7 +117,7 @@ class EmotionDetailScreen extends StatelessWidget {
               ),
               const SizedBox(width: 6),
               Text(
-                DateFormat('yyyy년 MM월 dd일 HH:mm').format(post.createdAt),
+                TimeUtils.getSmartDateTimeDisplay(post.createdAt),
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   color: Colors.grey[600],

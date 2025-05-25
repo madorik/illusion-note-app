@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import '../core/models/emotion_model.dart';
 import '../core/models/emotion_analysis_model.dart';
+import '../core/utils/time_utils.dart';
 import 'api_service.dart';
 
 class EmotionService {
@@ -23,15 +24,7 @@ class EmotionService {
         context: context,
       );
       
-      print('=== 감정 분석 요청 ===');
-      print('Request: ${request.toJson()}');
-      print('==================');
-      
       final response = await _apiService.post('/api/emotion/openai', data: request.toJson());
-      
-      print('=== 감정 분석 응답 ===');
-      print('Response: ${response.data}');
-      print('==================');
       
       if (response.data != null) {
         return EmotionAnalysisResponse.fromJson(response.data);
@@ -39,7 +32,6 @@ class EmotionService {
         throw Exception('감정 분석 응답이 비어있습니다');
       }
     } catch (e) {
-      print('감정 분석 오류: $e');
       throw Exception('감정 분석 실패: $e');
     }
   }
@@ -47,18 +39,10 @@ class EmotionService {
   // 최근 감정 분석 기록 조회
   Future<RecentEmotionResponse> getRecentEmotions({int count = 3, int offset = 0}) async {
     try {
-      print('=== 최근 감정 기록 조회 ===');
-      print('Count: $count, Offset: $offset');
-      print('=======================');
-      
       final response = await _apiService.get('/api/emotion/recent', queryParameters: {
         'count': count,
         // 서버에서 offset을 지원하지 않으므로 클라이언트에서 처리
       });
-      
-      print('=== 최근 감정 기록 응답 ===');
-      print('Response: ${response.data}');
-      print('========================');
       
       if (response.data != null) {
         final recentResponse = RecentEmotionResponse.fromJson(response.data);
@@ -79,7 +63,6 @@ class EmotionService {
         throw Exception('최근 감정 기록 응답이 비어있습니다');
       }
     } catch (e) {
-      print('최근 감정 기록 조회 오류: $e');
       throw Exception('최근 감정 기록 조회 실패: $e');
     }
   }
@@ -87,45 +70,30 @@ class EmotionService {
   // 날짜별 감정 기록 조회
   Future<List<EmotionPost>> getEmotionsByDate({required DateTime date}) async {
     try {
-      final dateString = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
-      
-      print('=== 날짜별 감정 기록 조회 ===');
-      print('날짜: $dateString');
-      print('========================');
+      // 한국시간 기준으로 날짜 문자열 생성
+      final koreaDate = date.isUtc ? TimeUtils.toKoreaTime(date) : date;
+      final dateString = TimeUtils.formatKoreaDate(koreaDate, pattern: 'yyyy-MM-dd');
       
       final response = await _apiService.get('/api/emotion/by-date', queryParameters: {
         'startDate': dateString,
       });
       
-      print('=== 날짜별 감정 기록 응답 ===');
-      print('Response: ${response.data}');
-      print('==========================');
-      
       if (response.data != null) {
         // API 응답 구조: {total: 3, statistics: {...}, data: [...]}
         if (response.data is Map<String, dynamic> && response.data['data'] != null) {
           final List<dynamic> postsData = response.data['data'];
-          print('=== 파싱된 데이터 ===');
-          print('데이터 개수: ${postsData.length}');
-          if (postsData.isNotEmpty) {
-            print('첫 번째 데이터: ${postsData.first}');
-          }
-          print('==================');
-          
           return postsData.map((post) => EmotionPost.fromJson(post)).toList();
         } else if (response.data is List) {
           // 혹시 배열로 직접 오는 경우도 처리
           final List<dynamic> postsData = response.data;
           return postsData.map((post) => EmotionPost.fromJson(post)).toList();
         } else {
-          print('예상하지 못한 응답 구조: ${response.data.runtimeType}');
           return [];
         }
       } else {
         return [];
       }
     } catch (e) {
-      print('날짜별 감정 기록 조회 오류: $e');
       throw Exception('날짜별 감정 기록 조회 실패: $e');
     }
   }

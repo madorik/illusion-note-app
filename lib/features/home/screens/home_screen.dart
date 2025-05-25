@@ -8,6 +8,7 @@ import '../../emotion/providers/emotion_provider.dart';
 import '../../history/providers/history_provider.dart';
 import '../../../core/models/emotion_analysis_model.dart';
 import '../../../services/service_locator.dart';
+import '../../../core/utils/time_utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -42,37 +43,28 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      final today = DateTime.now();
-      final dateString = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+      // 최근 감정 기록들을 가져와서 오늘 것만 필터링
+      final recentEmotions = await services.emotionService.getRecentEmotions(count: 50);
+      final today = TimeUtils.nowInKorea();
       
-      print('=== 오늘의 감정 로드 시작 ===');
-      print('오늘 날짜: $dateString');
-      print('========================');
-      
-      final todayEmotions = await services.emotionService.getEmotionsByDate(date: today);
-      
-      print('=== 오늘의 감정 로드 결과 ===');
-      print('받은 데이터 개수: ${todayEmotions.length}');
-      if (todayEmotions.isNotEmpty) {
-        print('첫 번째 데이터: ${todayEmotions.first.title} - ${todayEmotions.first.emotion}');
+      // 오늘 날짜의 감정 기록 찾기
+      EmotionPost? todayEmotion;
+      for (final post in recentEmotions.posts) {
+        final koreaPostDate = post.createdAt.isUtc ? TimeUtils.toKoreaTime(post.createdAt) : post.createdAt;
+        if (koreaPostDate.year == today.year &&
+            koreaPostDate.month == today.month &&
+            koreaPostDate.day == today.day) {
+          todayEmotion = post;
+          break; // 가장 최근 것만 사용
+        }
       }
-      print('==========================');
       
       setState(() {
-        _todayEmotion = todayEmotions.isNotEmpty ? todayEmotions.first : null;
+        _todayEmotion = todayEmotion;
         _isLoadingTodayEmotion = false;
       });
       
-      if (todayEmotions.isEmpty) {
-        print('오늘 날짜에 해당하는 감정 기록이 없습니다.');
-      }
-      
     } catch (e) {
-      print('=== 오늘의 감정 로드 실패 ===');
-      print('에러: $e');
-      print('에러 타입: ${e.runtimeType}');
-      print('========================');
-      
       setState(() {
         _todayEmotion = null;
         _isLoadingTodayEmotion = false;
@@ -336,12 +328,21 @@ class _HomeScreenState extends State<HomeScreen> {
               const Spacer(),
               IconButton(
                 onPressed: _isLoadingTodayEmotion ? null : _loadTodayEmotion,
-                icon: Icon(
-                  Icons.refresh,
-                  color: _isLoadingTodayEmotion ? AppColors.textTertiary : AppColors.primaryBlue,
-                  size: 20,
-                ),
-                tooltip: '새로고침',
+                icon: _isLoadingTodayEmotion 
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryBlue),
+                        ),
+                      )
+                    : Icon(
+                        Icons.refresh,
+                        color: AppColors.primaryBlue,
+                        size: 20,
+                      ),
+                tooltip: _isLoadingTodayEmotion ? '로딩 중...' : '오늘의 감정 새로고침',
               ),
             ],
           ),
@@ -386,12 +387,35 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(
-                        '아직 오늘의 감정을 기록하지 않았어요.\n첫 감정을 기록해보세요!',
-                        style: GoogleFonts.inter(
-                          fontSize: 14,
-                          color: AppColors.textSecondary,
-                        ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '아직 오늘의 감정을 기록하지 않았어요.',
+                            style: GoogleFonts.inter(
+                              fontSize: 14,
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '첫 감정을 기록해보세요!',
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: AppColors.textTertiary,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '현재 시간: ${TimeUtils.formatKoreaTime(TimeUtils.nowInKorea(), pattern: 'MM월 dd일 HH:mm')}',
+                            style: GoogleFonts.inter(
+                              fontSize: 12,
+                              color: AppColors.primaryBlue,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     Icon(
@@ -451,13 +475,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const Spacer(),
-              Text(
-                DateFormat('HH:mm').format(emotion.createdAt),
-                style: GoogleFonts.inter(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    TimeUtils.getRelativeTime(emotion.createdAt),
+                    style: GoogleFonts.inter(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    TimeUtils.formatKoreaTime(emotion.createdAt, pattern: 'MM/dd HH:mm'),
+                    style: GoogleFonts.inter(
+                      fontSize: 11,
+                      color: AppColors.textTertiary,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
