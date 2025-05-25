@@ -3,6 +3,25 @@ import '../../emotion/providers/emotion_provider.dart';
 import '../../../core/models/emotion_analysis_model.dart';
 import '../../../services/service_locator.dart';
 
+// 주간 통계 모델
+class WeeklyStats {
+  final int totalEntries;
+  final int changeFromLastWeek;
+  final String mostCommonEmotion;
+  final int mostCommonEmotionCount;
+  final double averageScore;
+  final int streak;
+
+  WeeklyStats({
+    required this.totalEntries,
+    required this.changeFromLastWeek,
+    required this.mostCommonEmotion,
+    required this.mostCommonEmotionCount,
+    required this.averageScore,
+    required this.streak,
+  });
+}
+
 class HistoryProvider extends ChangeNotifier {
   List<EmotionPost> _emotionPosts = [];
   bool _isLoading = false;
@@ -18,6 +37,19 @@ class HistoryProvider extends ChangeNotifier {
   bool get isLoadingMore => _isLoadingMore;
   bool get hasMoreData => _hasMoreData;
   String? get errorMessage => _errorMessage;
+
+  // 주간 통계 getter 추가
+  WeeklyStats get weeklyStats {
+    final stats = getWeeklyStats();
+    return WeeklyStats(
+      totalEntries: stats['total'] as int,
+      changeFromLastWeek: stats['changeFromLastWeek'] as int? ?? 0,
+      mostCommonEmotion: stats['mostCommonEmotion'] as String? ?? '',
+      mostCommonEmotionCount: stats['mostCommonEmotionCount'] as int? ?? 0,
+      averageScore: (stats['avgScore'] as String).isEmpty ? 0.0 : double.tryParse(stats['avgScore'] as String) ?? 0.0,
+      streak: stats['streak'] as int,
+    );
+  }
 
   void _setLoading(bool loading) {
     _isLoading = loading;
@@ -122,8 +154,6 @@ class HistoryProvider extends ChangeNotifier {
     }
   }
 
-
-
   // 월별 통계 가져오기
   Map<String, dynamic> getMonthlyStats() {
     // TODO: 월별 통계 계산 로직 구현
@@ -176,6 +206,28 @@ class HistoryProvider extends ChangeNotifier {
       return post.createdAt.isAfter(weekStart) && post.createdAt.isBefore(weekEnd.add(const Duration(days: 1)));
     }).toList();
     
+    // 지난 주 데이터 계산
+    final lastWeekStart = weekStart.subtract(const Duration(days: 7));
+    final lastWeekEnd = weekStart.subtract(const Duration(days: 1));
+    final lastWeekPosts = _emotionPosts.where((post) {
+      return post.createdAt.isAfter(lastWeekStart) && post.createdAt.isBefore(lastWeekEnd.add(const Duration(days: 1)));
+    }).toList();
+    
+    // 가장 많은 감정 계산
+    final emotionCounts = <String, int>{};
+    for (final post in weeklyPosts) {
+      emotionCounts[post.emotion] = (emotionCounts[post.emotion] ?? 0) + 1;
+    }
+    
+    String mostCommonEmotion = '';
+    int mostCommonCount = 0;
+    emotionCounts.forEach((emotion, count) {
+      if (count > mostCommonCount) {
+        mostCommonEmotion = emotion;
+        mostCommonCount = count;
+      }
+    });
+    
     // 연속 기록 일수 계산
     int streak = 0;
     final today = DateTime.now();
@@ -196,6 +248,9 @@ class HistoryProvider extends ChangeNotifier {
     
     return {
       'total': weeklyPosts.length,
+      'changeFromLastWeek': weeklyPosts.length - lastWeekPosts.length,
+      'mostCommonEmotion': mostCommonEmotion,
+      'mostCommonEmotionCount': mostCommonCount,
       'avgScore': weeklyPosts.isEmpty ? '0.0' : '4.2', // 임시 평균값
       'streak': streak,
     };

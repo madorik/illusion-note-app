@@ -133,7 +133,7 @@ class _MainLayoutState extends State<MainLayout> {
       body: widget.child,
       bottomNavigationBar: _buildBottomNavigationBar(),
       floatingActionButton: _buildFloatingActionButton(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -163,17 +163,13 @@ class _MainLayoutState extends State<MainLayout> {
       child: BottomAppBar(
         height: 80,
         color: Colors.white,
-        notchMargin: 8,
-        shape: const CircularNotchedRectangle(),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              for (int i = 0; i < _items.length; i++) ...[
+              for (int i = 0; i < _items.length; i++) 
                 _buildNavItem(_items[i], i),
-                if (i == 0) const SizedBox(width: 40), // FAB를 위한 공간
-              ],
             ],
           ),
         ),
@@ -234,7 +230,7 @@ class _MainLayoutState extends State<MainLayout> {
         _showProfileBottomSheet(context);
         break;
       case 'settings':
-        _showSettingsBottomSheet(context);
+        context.push('/settings');
         break;
       case 'logout':
         _showLogoutConfirmation(context);
@@ -405,88 +401,6 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   Widget _buildProfileMenuItem({
-    required IconData icon,
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: const Color(0xFF6B73FF)),
-      title: Text(
-        title,
-      ),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: onTap,
-    );
-  }
-
-  void _showSettingsBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(20),
-        height: 350,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              '설정',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 20),
-            
-            _buildSettingsMenuItem(
-              icon: Icons.notifications,
-              title: '알림 설정',
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: 알림 설정 화면으로 이동
-              },
-            ),
-            _buildSettingsMenuItem(
-              icon: Icons.dark_mode,
-              title: '다크 모드',
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: 다크 모드 토글
-              },
-            ),
-            _buildSettingsMenuItem(
-              icon: Icons.language,
-              title: '언어 설정',
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: 언어 설정 화면으로 이동
-              },
-            ),
-            _buildSettingsMenuItem(
-              icon: Icons.help,
-              title: '도움말',
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: 도움말 화면으로 이동
-              },
-            ),
-            _buildSettingsMenuItem(
-              icon: Icons.info,
-              title: '앱 정보',
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: 앱 정보 화면으로 이동
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSettingsMenuItem({
     required IconData icon,
     required String title,
     required VoidCallback onTap,

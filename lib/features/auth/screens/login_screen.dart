@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
-import '../../../core/theme/app_theme.dart';
 import '../providers/auth_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,27 +14,45 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _rememberMe = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundGray,
+      backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 40),
+              const Spacer(flex: 2),
+              
+              // 제목 섹션
               _buildHeader(),
+              
               const SizedBox(height: 48),
-              _buildGoogleSignInButton(),
-              const SizedBox(height: 24),
-              _buildDivider(),
-              const SizedBox(height: 24),
+              
+              // 로그인 폼
               _buildLoginForm(),
+              
               const SizedBox(height: 32),
-              _buildFooter(),
+              
+              // 구글 로그인 버튼
+              _buildGoogleSignInButton(),
+              
+              const SizedBox(height: 24),
+              
+              // 하단 텍스트
+              _buildFooterText(),
+              
+              const Spacer(flex: 2),
             ],
           ),
         ),
@@ -45,35 +62,191 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildHeader() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.primaryBlue.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Icon(
-            Icons.psychology,
-            size: 48,
-            color: AppColors.primaryBlue,
-          ),
-        ),
-        const SizedBox(height: 24),
+        // 앱 제목
         Text(
-          '환영합니다!',
+          '착각노트',
           style: GoogleFonts.inter(
             fontSize: 32,
             fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
+            color: const Color(0xFF1A202C),
           ),
         ),
+        
         const SizedBox(height: 8),
+        
+        // 부제목
         Text(
-          '감정을 기록하고 분석해보세요',
+          '당신의 감정을 기록하고 분석해보세요',
           style: GoogleFonts.inter(
             fontSize: 16,
-            color: AppColors.textSecondary,
+            color: const Color(0xFF718096),
+            height: 1.5,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoginForm() {
+    return Column(
+      children: [
+        // 이메일 입력 필드
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: TextFormField(
+            controller: _emailController,
+            decoration: InputDecoration(
+              hintText: 'Email',
+              hintStyle: GoogleFonts.inter(
+                color: const Color(0xFF9CA3AF),
+                fontSize: 16,
+              ),
+              prefixIcon: const Icon(
+                Icons.email_outlined,
+                color: Color(0xFF9CA3AF),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+            ),
+            keyboardType: TextInputType.emailAddress,
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              color: const Color(0xFF1A202C),
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 16),
+        
+        // 비밀번호 입력 필드
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: TextFormField(
+            controller: _passwordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              hintText: 'Password',
+              hintStyle: GoogleFonts.inter(
+                color: const Color(0xFF9CA3AF),
+                fontSize: 16,
+              ),
+              prefixIcon: const Icon(
+                Icons.lock_outline,
+                color: Color(0xFF9CA3AF),
+              ),
+              suffixIcon: const Icon(
+                Icons.visibility_outlined,
+                color: Color(0xFF9CA3AF),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: Colors.white,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 16,
+              ),
+            ),
+            style: GoogleFonts.inter(
+              fontSize: 16,
+              color: const Color(0xFF1A202C),
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 16),
+        
+        // Remember me 체크박스
+        Row(
+          children: [
+            Checkbox(
+              value: _rememberMe,
+              onChanged: (value) {
+                setState(() {
+                  _rememberMe = value ?? false;
+                });
+              },
+              activeColor: const Color(0xFF6B73FF),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            Text(
+              'Remember me',
+              style: GoogleFonts.inter(
+                fontSize: 14,
+                color: const Color(0xFF4A5568),
+              ),
+            ),
+          ],
+        ),
+        
+        const SizedBox(height: 24),
+        
+        // Sign In 버튼
+        Container(
+          width: double.infinity,
+          height: 56,
+          decoration: BoxDecoration(
+            color: const Color(0xFF6B73FF),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF6B73FF).withOpacity(0.3),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: ElevatedButton(
+            onPressed: _signInWithEmail,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Sign In',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
           ),
         ),
       ],
@@ -83,35 +256,62 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildGoogleSignInButton() {
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        return SizedBox(
+        return Container(
           width: double.infinity,
           height: 56,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: const Color(0xFFE2E8F0),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
           child: ElevatedButton.icon(
             onPressed: authProvider.isLoading ? null : _signInWithGoogle,
-            icon: authProvider.isLoading 
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
-                  )
-                : Icon(Icons.g_mobiledata, size: 28),
-            label: Text(
-              authProvider.isLoading ? '로그인 중...' : 'Google로 계속하기',
-              style: GoogleFonts.inter(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryBlue,
-              foregroundColor: Colors.white,
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              elevation: 2,
+            ),
+            icon: authProvider.isLoading 
+                ? const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6B73FF)),
+                    ),
+                  )
+                : Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6B73FF).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: const Icon(
+                      Icons.g_mobiledata,
+                      size: 20,
+                      color: Color(0xFF6B73FF),
+                    ),
+                  ),
+            label: Text(
+              authProvider.isLoading ? '로그인 중...' : 'Continue with Google',
+              style: GoogleFonts.inter(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: const Color(0xFF1A202C),
+              ),
             ),
           ),
         );
@@ -119,221 +319,89 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildDivider() {
-    return Row(
+  Widget _buildFooterText() {
+    return Column(
       children: [
-        const Expanded(
-          child: Divider(color: AppColors.lightGray),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            '또는',
-            style: GoogleFonts.inter(
-              color: AppColors.textTertiary,
-              fontSize: 14,
-            ),
+        Text(
+          '계속 진행하면 서비스 약관 및 개인정보 처리방침에',
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: const Color(0xFF9CA3AF),
           ),
+          textAlign: TextAlign.center,
         ),
-        const Expanded(
-          child: Divider(color: AppColors.lightGray),
+        const SizedBox(height: 4),
+        Text(
+          '동의하는 것으로 간주됩니다.',
+          style: GoogleFonts.inter(
+            fontSize: 12,
+            color: const Color(0xFF9CA3AF),
+          ),
+          textAlign: TextAlign.center,
         ),
       ],
     );
   }
 
-  Widget _buildLoginForm() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.cardWhite,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: AppTheme.cardShadow,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            '이메일로 로그인',
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 20),
-          TextFormField(
-            controller: _emailController,
-            decoration: InputDecoration(
-              labelText: '이메일',
-              labelStyle: GoogleFonts.inter(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-              ),
-              filled: true,
-              fillColor: AppColors.lightGray,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
-              ),
-            ),
-            keyboardType: TextInputType.emailAddress,
-            style: GoogleFonts.inter(
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            controller: _passwordController,
-            decoration: InputDecoration(
-              labelText: '비밀번호',
-              labelStyle: GoogleFonts.inter(
-                color: AppColors.textSecondary,
-                fontSize: 14,
-              ),
-              filled: true,
-              fillColor: AppColors.lightGray,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
-              ),
-            ),
-            obscureText: true,
-            style: GoogleFonts.inter(
-              color: AppColors.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 20),
-          SizedBox(
-            width: double.infinity,
-            height: 48,
-            child: OutlinedButton(
-              onPressed: _signInWithEmailAndPassword,
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: AppColors.primaryBlue),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: Text(
-                '이메일로 로그인',
-                style: GoogleFonts.inter(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.primaryBlue,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Future<void> _signInWithEmail() async {
+    if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
+      _showErrorSnackBar('이메일과 비밀번호를 입력해주세요.');
+      return;
+    }
 
-  Widget _buildFooter() {
-    return Center(
-      child: Column(
-        children: [
-          Text(
-            '계정이 없으신가요?',
-            style: GoogleFonts.inter(
-              color: AppColors.textSecondary,
-            ),
-          ),
-          TextButton(
-            onPressed: _showSignUpDialog,
-            child: Text(
-              '회원가입',
-              style: GoogleFonts.inter(
-                color: AppColors.primaryBlue,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.signInWithEmailAndPassword(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      
+      if (success && mounted) {
+        context.go('/home');
+      } else if (mounted) {
+        _showErrorSnackBar('로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('로그인 중 오류가 발생했습니다: ${e.toString()}');
+      }
+    }
   }
 
   Future<void> _signInWithGoogle() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    authProvider.clearError();
-    final success = await authProvider.signInWithGoogle();
-    if (success && context.mounted) {
-      context.go('/home');
+    try {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final success = await authProvider.signInWithGoogle();
+      
+      if (success && mounted) {
+        context.go('/home');
+      } else if (mounted) {
+        _showErrorSnackBar('로그인에 실패했습니다. 다시 시도해주세요.');
+      }
+    } catch (e) {
+      if (mounted) {
+        _showErrorSnackBar('로그인 중 오류가 발생했습니다: ${e.toString()}');
+      }
     }
   }
 
-  void _signInWithEmailAndPassword() async {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    authProvider.clearError();
-    
-    if (_emailController.text.trim().isEmpty || _passwordController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('이메일과 비밀번호를 입력해주세요')),
-      );
-      return;
-    }
-    
-    final success = await authProvider.signInWithEmailAndPassword(
-      _emailController.text.trim(), 
-      _passwordController.text.trim(),
-    );
-    
-    if (success && mounted) {
-      context.go('/home');
-    }
-  }
-
-  void _showSignUpDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: AppColors.cardWhite,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          '회원가입',
-          style: GoogleFonts.inter(
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-        ),
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
         content: Text(
-          '현재는 Google 로그인만 지원합니다.\nGoogle로 계속하기 버튼을 이용해주세요.',
+          message,
           style: GoogleFonts.inter(
-            color: AppColors.textSecondary,
+            color: Colors.white,
+            fontWeight: FontWeight.w500,
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(
-              '확인',
-              style: GoogleFonts.inter(
-                color: AppColors.primaryBlue,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ),
-        ],
+        backgroundColor: Colors.red.shade400,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        margin: const EdgeInsets.all(16),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 } 
