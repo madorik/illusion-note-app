@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 32),
               _buildEmotionStatus(),
               const SizedBox(height: 32),
-              _buildWeeklyStats(),
+              _buildMonthlyStats(),
             ],
           ),
         ),
@@ -325,25 +325,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: AppColors.textPrimary,
                 ),
               ),
-              const Spacer(),
-              IconButton(
-                onPressed: _isLoadingTodayEmotion ? null : _loadTodayEmotion,
-                icon: _isLoadingTodayEmotion 
-                    ? SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryBlue),
-                        ),
-                      )
-                    : Icon(
-                        Icons.refresh,
-                        color: AppColors.primaryBlue,
-                        size: 20,
-                      ),
-                tooltip: _isLoadingTodayEmotion ? '로딩 중...' : '오늘의 감정 새로고침',
-              ),
             ],
           ),
           const SizedBox(height: 16),
@@ -551,7 +532,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildWeeklyStats() {
+  Widget _buildMonthlyStats() {
+    // 월간 통계 데이터를 위한 Future
+    Future<Map<String, dynamic>>? _monthlyStatsFuture;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -563,7 +547,7 @@ class _HomeScreenState extends State<HomeScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '이번 주 통계',
+            '이번달 통계',
             style: GoogleFonts.inter(
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -571,9 +555,38 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           const SizedBox(height: 20),
-          Consumer<EmotionProvider>(
-            builder: (context, emotionProvider, child) {
-              final stats = emotionProvider.getWeeklyStats();
+          FutureBuilder<Map<String, dynamic>>(
+            future: Provider.of<EmotionProvider>(context, listen: false).getMonthlyStats(),
+            builder: (context, snapshot) {
+              // 로딩 상태
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: SizedBox(
+                    height: 50,
+                    child: CircularProgressIndicator(),
+                  ),
+                );
+              }
+              
+              // 에러 처리
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                    '통계를 불러오는 중 오류가 발생했습니다',
+                    style: GoogleFonts.inter(
+                      fontSize: 14,
+                      color: AppColors.errorRed,
+                    ),
+                  ),
+                );
+              }
+              
+              // 데이터 처리
+              final stats = snapshot.data ?? {
+                'total': 0,
+                'streak': 0,
+                'avgScore': '0.0',
+              };
               
               return Row(
                 children: [
@@ -594,7 +607,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Expanded(
                     child: _buildStatItem(
                       '평균 점수',
-                      stats['avgScore'],
+                      stats['avgScore'].toString(),
                       AppColors.warningOrange,
                     ),
                   ),

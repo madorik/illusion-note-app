@@ -235,4 +235,96 @@ class EmotionService {
       throw Exception('Failed to fetch recommendations: $e');
     }
   }
-} 
+  
+  // 월간 통계 조회
+  Future<Map<String, dynamic>> getMonthlyStats() async {
+    try {
+      // 현재 년도와 월을 가져와서 yearMonth 형식으로 만들기 (YYYY-MM)
+      final now = TimeUtils.nowInKorea();
+      final yearMonth = '${now.year}-${now.month.toString().padLeft(2, '0')}';
+      
+      print('월간 통계 요청: yearMonth=$yearMonth');
+      
+      // 서버에 요청 - 올바른 API 엔드포인트와 파라미터 사용
+      final response = await _apiService.get('/api/emotion/monthly-stats', queryParameters: {
+        'yearMonth': yearMonth,
+      });
+      
+      // 응답 로그 추가
+      print('월간 통계 API 응답: ${response.data}');
+      
+      // 응답이 null인 경우
+      if (response.data == null) {
+        print('월간 통계 API 응답이 null입니다');
+        return _getDefaultStats();
+      }
+      
+      // 응답이 Map이고 stats 배열이 있는 경우 (실제 API 응답 형태)
+      if (response.data is Map && response.data.containsKey('stats')) {
+        final statsList = response.data['stats'] as List;
+        if (statsList.isNotEmpty) {
+          // 첫 번째 통계 데이터 가져오기
+          final statsData = statsList[0] as Map<String, dynamic>;
+          final total = statsData['total'] ?? 0;
+          
+          // 감정별 수치 계산
+          int emotionCount = 0;
+          double emotionSum = 0;
+          if (statsData.containsKey('emotions') && statsData['emotions'] is Map) {
+            final emotions = statsData['emotions'] as Map;
+            emotions.forEach((emotion, count) {
+              emotionCount += (count as int);
+              // 감정별 점수 가중치 (예시: 기쁨=0.8, 슬픔=0.3 등)
+              double score = 0.5; // 기본 점수
+              if (emotion == '기쁨' || emotion == '행복') score = 0.8;
+              if (emotion == '슬픔' || emotion == '우울') score = 0.3;
+              emotionSum += (count as int) * score;
+            });
+          }
+          
+          // 평균 점수 계산
+          final avgScore = emotionCount > 0 ? emotionSum / emotionCount : 0.0;
+          
+          // 연속 기록 일수 (임의로 설정)
+          final streak = total > 0 ? (total > 7 ? 7 : total) : 0;
+          
+          // 통계 데이터 반환
+          return {
+            'total': total,
+            'avgScore': avgScore.toStringAsFixed(1),
+            'streak': streak,
+          };
+        }
+      }
+      
+      // 성공 플래그가 있고 성공인 경우
+      else if (response.data is Map && response.data.containsKey('success') && response.data['success'] == true) {
+        var data = response.data['data'];
+        if (data != null) return data;
+      }
+      
+      // 성공 플래그 없이 바로 데이터가 오는 경우
+      else if (response.data is Map && (response.data.containsKey('total') || 
+               response.data.containsKey('avgScore') || 
+               response.data.containsKey('streak'))) {
+        return response.data;
+      }
+      
+      // 기본 값 반환
+      return _getDefaultStats();
+    } catch (e) {
+      // 예외 발생 시 기본 값 반환
+      print('월간 통계 API 예외 발생: $e');
+      return _getDefaultStats();
+    }
+  }
+  
+  // 기본 통계 값 반환
+  Map<String, dynamic> _getDefaultStats() {
+    return {
+      'total': 0,
+      'avgScore': '0.0',
+      'streak': 0,
+    };
+  }
+}

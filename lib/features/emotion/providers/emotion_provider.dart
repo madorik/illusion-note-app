@@ -198,6 +198,50 @@ class EmotionProvider extends ChangeNotifier {
     };
   }
 
+  // 월간 통계 가져오기
+  Future<Map<String, dynamic>> getMonthlyStats() async {
+    final now = TimeUtils.nowInKorea();
+    final startOfMonth = DateTime(now.year, now.month, 1);
+    final endOfMonth = (now.month < 12)
+        ? DateTime(now.year, now.month + 1, 1)
+        : DateTime(now.year + 1, 1, 1);
+    
+    try {
+      // 서버에서 월간 통계 데이터 가져오기 시도
+      final monthlyStats = await services.emotionService.getMonthlyStats();
+      if (monthlyStats != null) {
+        return monthlyStats;
+      }
+    } catch (e) {
+      // 서버 요청 실패 시 로컬 데이터로 계산
+      print('월간 통계 API 호출 실패: ${e.toString()}');
+    }
+    
+    // 로컬 데이터로 계산 (서버 요청 실패 시 폴백)
+    final monthEntries = _entries.where((entry) {
+      final koreaEntryDate = entry.createdAt.isUtc ? TimeUtils.toKoreaTime(entry.createdAt) : entry.createdAt;
+      return koreaEntryDate.isAfter(startOfMonth) && 
+             koreaEntryDate.isBefore(endOfMonth);
+    }).toList();
+
+    final totalEntries = monthEntries.length;
+    final avgScore = monthEntries.isNotEmpty
+        ? monthEntries
+            .where((e) => e.score != null)
+            .map((e) => e.score!)
+            .fold(0.0, (a, b) => a + b) / monthEntries.length
+        : 0.0;
+
+    // 연속 기록 일수 계산
+    final streak = _calculateStreak();
+
+    return {
+      'total': totalEntries,
+      'avgScore': avgScore.toStringAsFixed(1),
+      'streak': streak,
+    };
+  }
+
   int _calculateStreak() {
     if (_entries.isEmpty) return 0;
 
