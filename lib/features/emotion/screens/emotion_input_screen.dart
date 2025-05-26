@@ -94,53 +94,58 @@ class _EmotionInputScreenState extends State<EmotionInputScreen> {
             const SizedBox(height: 32),
             
             // 텍스트 입력 영역
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  height: 150,
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF9FAFB),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  child: TextField(
-                    controller: _textController,
-                    maxLines: null,
-                    maxLength: 100,
-                    textAlignVertical: TextAlignVertical.top,
-                    decoration: InputDecoration(
-                      hintText: '예: 오늘 회사에서 프레젠테이션을 했는데 너무 떨렸어요...',
-                      hintStyle: GoogleFonts.inter(
-                        fontSize: 16,
-                        color: const Color(0xFF9CA3AF),
+            Container(
+              height: 150,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF9FAFB),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: const Color(0xFFE5E7EB),
+                ),
+              ),
+              child: Stack(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
+                    child: TextField(
+                      controller: _textController,
+                      maxLines: null,
+                      maxLength: 100,
+                      textAlignVertical: TextAlignVertical.top,
+                      decoration: InputDecoration(
+                        hintText: '예: 오늘 회사에서 프레젠테이션을 했는데 너무 떨렸어요...',
+                        hintStyle: GoogleFonts.inter(
+                          fontSize: 16,
+                          color: const Color(0xFF9CA3AF),
+                        ),
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.zero,
+                        counterText: '',
                       ),
-                      border: InputBorder.none,
-                      counterText: '',
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        color: Colors.black,
+                        height: 1.5,
+                      ),
+                      onChanged: (value) => setState(() {}),
                     ),
-                    style: GoogleFonts.inter(
-                      fontSize: 16,
-                      color: Colors.black,
-                      height: 1.5,
+                  ),
+                  Positioned(
+                    right: 16,
+                    bottom: 12,
+                    child: Text(
+                      '${_textController.text.length}/100',
+                      style: GoogleFonts.inter(
+                        fontSize: 12,
+                        color: _textController.text.length > 90 
+                            ? Colors.red 
+                            : const Color(0xFF9CA3AF),
+                      ),
                     ),
-                    onChanged: (value) => setState(() {}),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${_textController.text.length}/100',
-                  style: GoogleFonts.inter(
-                    fontSize: 12,
-                    color: _textController.text.length > 90 
-                        ? Colors.red 
-                        : const Color(0xFF9CA3AF),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
             
             const SizedBox(height: 24),

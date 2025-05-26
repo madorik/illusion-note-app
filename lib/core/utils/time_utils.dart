@@ -17,18 +17,23 @@ class TimeUtils {
   /// 상대적 시간 표시 (한국시간 기준)
   static String getRelativeTime(DateTime dateTime) {
     final now = nowInKorea();
+    // 서버에서 받아온 UTC 시간을 한국시간으로 변환
     final koreaDateTime = dateTime.isUtc ? toKoreaTime(dateTime) : dateTime;
     final difference = now.difference(koreaDateTime);
+    
+    // 디버깅용 로그 (개발 중에만 사용)
+    // print('TimeUtils.getRelativeTime - Original: $dateTime, Korea: $koreaDateTime, Now: $now, Diff: ${difference.inMinutes}분');
     
     if (difference.isNegative) {
       return '방금 전';
     }
     
+    final seconds = difference.inSeconds;
     final minutes = difference.inMinutes;
     final hours = difference.inHours;
     final days = difference.inDays;
     
-    if (minutes < 10) {
+    if (seconds < 60) {
       return '방금 전';
     } else if (minutes < 60) {
       return '${minutes}분 전';
@@ -41,7 +46,7 @@ class TimeUtils {
       return '${weeks}주 전';
     } else if (days < 365) {
       final months = (days / 30).floor();
-      return '${months}달 전';
+      return '${months}개월 전';
     } else {
       final years = (days / 365).floor();
       return '${years}년 전';
