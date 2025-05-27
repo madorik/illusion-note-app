@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/models/emotion_analysis_model.dart';
 import '../../../core/utils/time_utils.dart';
+import '../../../core/utils/emotion_utils.dart';
 import '../../../services/service_locator.dart';
 
 class CalendarScreen extends StatefulWidget {
@@ -400,13 +401,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   color: _getEmotionColor(post.emotion).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: Text(
-                  post.emotion,
-                  style: TextStyle(
-                    color: _getEmotionColor(post.emotion),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 감정 이미지
+                    EmotionUtils.buildEmotionImage(
+                      emotion: post.emotion,
+                      size: 14,
+                      fallbackIconColor: _getEmotionColor(post.emotion),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      post.emotion,
+                      style: TextStyle(
+                        color: _getEmotionColor(post.emotion),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const Spacer(),

@@ -9,6 +9,7 @@ import '../../history/providers/history_provider.dart';
 import '../../../core/models/emotion_analysis_model.dart';
 import '../../../services/service_locator.dart';
 import '../../../core/utils/time_utils.dart';
+import '../../../core/utils/emotion_utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -446,13 +447,25 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: _getEmotionColorFromString(emotion.emotion),
                   borderRadius: BorderRadius.circular(20),
                 ),
-                child: Text(
-                  emotion.emotion,
-                  style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // 감정 이미지
+                    EmotionUtils.buildEmotionImage(
+                      emotion: emotion.emotion,
+                      size: 16,
+                      fallbackIconColor: Colors.white,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      emotion.emotion,
+                      style: GoogleFonts.inter(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const Spacer(),

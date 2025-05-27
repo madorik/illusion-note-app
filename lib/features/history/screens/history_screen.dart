@@ -6,6 +6,7 @@ import '../providers/history_provider.dart';
 import '../../emotion/providers/emotion_provider.dart';
 import '../../../core/models/emotion_analysis_model.dart';
 import '../../../core/utils/time_utils.dart';
+import '../../../core/utils/emotion_utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -246,9 +247,10 @@ class _HistoryScreenState extends State<HistoryScreen>
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
-                      child: Text(
-                        _getEmotionEmoji(post.emotion),
-                        style: const TextStyle(fontSize: 20),
+                      child: EmotionUtils.buildEmotionImage(
+                        emotion: post.emotion,
+                        size: 24,
+                        fallbackIconColor: Colors.white,
                       ),
                     ),
                   ),
@@ -809,32 +811,7 @@ class _HistoryScreenState extends State<HistoryScreen>
     }
   }
 
-  String _getEmotionEmoji(String emotion) {
-    switch (emotion.toLowerCase()) {
-      case '기쁨':
-      case '좋음':
-      case '행복':
-        return '😊';
-      case '슬픔':
-      case '우울':
-        return '😢';
-      case '화남':
-      case '분노':
-        return '😠';
-      case '불안':
-      case '걱정':
-        return '😰';
-      case '평온':
-      case '차분':
-        return '😌';
-      case '놀람':
-        return '😲';
-      case '사랑':
-        return '😍';
-      default:
-        return '😐';
-    }
-  }
+
 
 
 } 
