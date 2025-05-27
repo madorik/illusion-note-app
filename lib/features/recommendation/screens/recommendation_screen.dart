@@ -50,7 +50,9 @@ class _RecommendationViewState extends State<_RecommendationView> {
             color: Color(0xFF2D3748),
             size: 20,
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () {
+            context.goNamed('home');
+          },
         ),
       ),
       body: Consumer<RecommendationProvider>(
