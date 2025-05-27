@@ -32,6 +32,12 @@ class _MainLayoutState extends State<MainLayout> {
       label: '기록',
       route: '/history',
     ),
+    NavigationItem(
+      icon: Icons.calendar_month_outlined,
+      selectedIcon: Icons.calendar_month,
+      label: '캘린더',
+      route: '/calendar',
+    ),
   ];
 
   @override
@@ -55,19 +61,91 @@ class _MainLayoutState extends State<MainLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          _getCurrentPageTitle(),
-          style: const TextStyle(
-            color: Color(0xFF2D3748),
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white,
+                const Color(0xFF6B73FF).withOpacity(0.05),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
-        ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: PopupMenuButton<String>(
+              icon: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: const Color(0xFF6B73FF).withOpacity(0.1),
+                  border: Border.all(
+                    color: const Color(0xFF6B73FF).withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: const Icon(
+                  Icons.menu_outlined,
+                  color: Color(0xFF6B73FF),
+                  size: 20,
+                ),
+              ),
+              onSelected: (value) => _handleMainMenuAction(context, value),
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'emotion_input',
+                  child: Row(
+                    children: [
+                      Icon(Icons.add_circle_outline, size: 20, color: Color(0xFF6B73FF)),
+                      SizedBox(width: 12),
+                      Text('감정기록'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'history',
+                  child: Row(
+                    children: [
+                      Icon(Icons.history_outlined, size: 20, color: Color(0xFF6B73FF)),
+                      SizedBox(width: 12),
+                      Text('기록보기'),
+                    ],
+                  ),
+                ),
+                const PopupMenuItem(
+                  value: 'calendar',
+                  child: Row(
+                    children: [
+                      Icon(Icons.calendar_month_outlined, size: 20, color: Color(0xFF6B73FF)),
+                      SizedBox(width: 12),
+                      Text('캘린더'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            title: Text(
+              _getCurrentPageTitle(),
+              style: const TextStyle(
+                color: Color(0xFF2D3748),
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            centerTitle: true,
         actions: [
-          // 알림 버튼 (향후 Firebase Cloud Messaging 연동)
+          // 알림 버튼
           IconButton(
             icon: const Icon(
               Icons.notifications_outlined,
@@ -78,10 +156,10 @@ class _MainLayoutState extends State<MainLayout> {
             },
           ),
           
-          // 프로필/설정 메뉴
+          // 프로필 메뉴
           PopupMenuButton<String>(
             icon: const Icon(
-              Icons.more_vert,
+              Icons.account_circle_outlined,
               color: Color(0xFF718096),
             ),
             onSelected: (value) => _handleMenuAction(context, value),
@@ -92,21 +170,7 @@ class _MainLayoutState extends State<MainLayout> {
                   children: [
                     Icon(Icons.person_outline, size: 20),
                     SizedBox(width: 12),
-                    Text(
-                      '프로필',
-                    ),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'settings',
-                child: Row(
-                  children: [
-                    Icon(Icons.settings_outlined, size: 20),
-                    SizedBox(width: 12),
-                    Text(
-                      '설정',
-                    ),
+                    Text('프로필'),
                   ],
                 ),
               ),
@@ -119,9 +183,7 @@ class _MainLayoutState extends State<MainLayout> {
                     SizedBox(width: 12),
                     Text(
                       '로그아웃',
-                      style: const TextStyle(
-                        color: Colors.red,
-                      ),
+                      style: TextStyle(color: Colors.red),
                     ),
                   ],
                 ),
@@ -129,6 +191,8 @@ class _MainLayoutState extends State<MainLayout> {
             ],
           ),
         ],
+          ),
+        ),
       ),
       body: widget.child,
       bottomNavigationBar: _buildBottomNavigationBar(),
@@ -222,6 +286,23 @@ class _MainLayoutState extends State<MainLayout> {
         size: 28,
       ),
     );
+  }
+
+  void _handleMainMenuAction(BuildContext context, String action) {
+    switch (action) {
+      case 'emotion_input':
+        context.push('/emotion-input');
+        break;
+      case 'history':
+        context.push('/history');
+        break;
+      case 'calendar':
+        context.push('/calendar');
+        break;
+      case 'statistics':
+        context.push('/statistics');
+        break;
+    }
   }
 
   void _handleMenuAction(BuildContext context, String action) {
@@ -464,11 +545,13 @@ class NavigationItem {
   final IconData selectedIcon;
   final String label;
   final String route;
+  final bool isMenuTab;
 
   NavigationItem({
     required this.icon,
     required this.selectedIcon,
     required this.label,
     required this.route,
+    this.isMenuTab = false,
   });
 } 

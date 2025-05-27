@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../providers/menu_provider.dart';
+import '../../../core/constants/menu_items.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -14,14 +16,12 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   PackageInfo? _packageInfo;
-  bool _notificationsEnabled = true;
-  bool _darkModeEnabled = false;
-  bool _analyticsEnabled = true;
 
   @override
   void initState() {
     super.initState();
     _loadPackageInfo();
+    _initializeMenus();
   }
 
   Future<void> _loadPackageInfo() async {
@@ -29,6 +29,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {
       _packageInfo = info;
     });
+  }
+
+  void _initializeMenus() {
+    final menuProvider = Provider.of<MenuProvider>(context, listen: false);
+    
+    // 앱 정보 업데이트
+    if (_packageInfo != null) {
+      final updatedAppInfoItem = MenuItem(
+        id: MenuConstants.appInfo,
+        icon: Icons.info_outline,
+        title: '앱 정보',
+        subtitle: '버전 ${_packageInfo!.version}',
+        onTap: () => _showAppInfoDialog(),
+      );
+      menuProvider.updateItem(MenuConstants.appInfo, updatedAppInfoItem);
+    }
+    
+    // 개발자 옵션 추가 (디버그 모드에서만)
+    menuProvider.addDeveloperOptions();
+    
+    // 사용자 타입에 따른 메뉴 업데이트 (예시)
+    menuProvider.updateMenuForUserType(false); // false = 일반 사용자
   }
 
   @override
@@ -52,188 +74,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // 프로필 섹션
-            _buildProfileSection(),
-            const SizedBox(height: 24),
-            
-            // 일반 설정
-            _buildSettingsSection(
-              '일반',
-              [
-                _buildSettingsTile(
-                  icon: Icons.notifications_outlined,
-                  title: '알림',
-                  subtitle: '푸시 알림 설정',
-                  trailing: Switch(
-                    value: _notificationsEnabled,
-                    onChanged: (value) {
-                      setState(() {
-                        _notificationsEnabled = value;
-                      });
-                    },
-                    activeColor: const Color(0xFF6B73FF),
-                  ),
-                ),
-                _buildSettingsTile(
-                  icon: Icons.dark_mode_outlined,
-                  title: '다크 모드',
-                  subtitle: '어두운 테마 사용',
-                  trailing: Switch(
-                    value: _darkModeEnabled,
-                    onChanged: (value) {
-                      setState(() {
-                        _darkModeEnabled = value;
-                      });
-                    },
-                    activeColor: const Color(0xFF6B73FF),
-                  ),
-                ),
-                _buildSettingsTile(
-                  icon: Icons.language_outlined,
-                  title: '언어',
-                  subtitle: '한국어',
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                  onTap: () {
-                    // 언어 설정 페이지로 이동
-                  },
-                ),
+      body: Consumer<MenuProvider>(
+        builder: (context, menuProvider, child) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 프로필 섹션
+                _buildProfileSection(),
+                const SizedBox(height: 24),
+                
+                // 동적 메뉴 섹션들
+                ...menuProvider.menuSections.map((section) => 
+                  _buildMenuSection(section, menuProvider)
+                ).toList(),
+                
+                const SizedBox(height: 40),
               ],
             ),
-            
-            const SizedBox(height: 24),
-            
-            // 개인정보 및 보안
-            _buildSettingsSection(
-              '개인정보 및 보안',
-              [
-                _buildSettingsTile(
-                  icon: Icons.analytics_outlined,
-                  title: '분석 데이터',
-                  subtitle: '앱 개선을 위한 데이터 수집',
-                  trailing: Switch(
-                    value: _analyticsEnabled,
-                    onChanged: (value) {
-                      setState(() {
-                        _analyticsEnabled = value;
-                      });
-                    },
-                    activeColor: const Color(0xFF6B73FF),
-                  ),
-                ),
-                _buildSettingsTile(
-                  icon: Icons.privacy_tip_outlined,
-                  title: '개인정보 처리방침',
-                  subtitle: '개인정보 보호 정책 확인',
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                  onTap: () {
-                    // 개인정보 처리방침 페이지로 이동
-                  },
-                ),
-                _buildSettingsTile(
-                  icon: Icons.security_outlined,
-                  title: '보안',
-                  subtitle: '계정 보안 설정',
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                  onTap: () {
-                    // 보안 설정 페이지로 이동
-                  },
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // 지원
-            _buildSettingsSection(
-              '지원',
-              [
-                _buildSettingsTile(
-                  icon: Icons.help_outline,
-                  title: '도움말',
-                  subtitle: 'FAQ 및 사용 가이드',
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                  onTap: () {
-                    // 도움말 페이지로 이동
-                  },
-                ),
-                _buildSettingsTile(
-                  icon: Icons.feedback_outlined,
-                  title: '피드백',
-                  subtitle: '의견 및 제안 보내기',
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                  onTap: () {
-                    // 피드백 페이지로 이동
-                  },
-                ),
-                _buildSettingsTile(
-                  icon: Icons.info_outline,
-                  title: '앱 정보',
-                  subtitle: _packageInfo != null 
-                      ? '버전 ${_packageInfo!.version}'
-                      : '버전 정보 로딩 중...',
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.grey,
-                  ),
-                  onTap: () {
-                    _showAppInfoDialog();
-                  },
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // 계정
-            _buildSettingsSection(
-              '계정',
-              [
-                _buildSettingsTile(
-                  icon: Icons.logout,
-                  title: '로그아웃',
-                  subtitle: '계정에서 로그아웃',
-                  trailing: const Icon(
-                    Icons.arrow_forward_ios,
-                    size: 16,
-                    color: Colors.red,
-                  ),
-                  onTap: () {
-                    _showLogoutDialog();
-                  },
-                  titleColor: Colors.red,
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 40),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -309,6 +170,160 @@ class _SettingsScreenState extends State<SettingsScreen> {
         );
       },
     );
+  }
+
+  Widget _buildMenuSection(MenuSection section, MenuProvider menuProvider) {
+    if (section.items.isEmpty) return const SizedBox.shrink();
+    
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 12),
+          child: Row(
+            children: [
+              if (section.headerIcon != null) ...[
+                Icon(
+                  section.headerIcon,
+                  size: 18,
+                  color: section.headerColor ?? const Color(0xFF6B73FF),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Text(
+                section.title,
+                style: GoogleFonts.inter(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Column(
+            children: section.items.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              final isLast = index == section.items.length - 1;
+              
+              return _buildMenuTile(item, menuProvider, isLast);
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
+  Widget _buildMenuTile(MenuItem item, MenuProvider menuProvider, bool isLast) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: item.onTap ?? () => _handleMenuItemTap(item, menuProvider),
+        borderRadius: BorderRadius.vertical(
+          top: isLast ? Radius.zero : const Radius.circular(16),
+          bottom: isLast ? const Radius.circular(16) : Radius.zero,
+        ),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            border: isLast ? null : Border(
+              bottom: BorderSide(
+                color: Colors.grey.shade100,
+                width: 1,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: (item.iconColor ?? const Color(0xFF6B73FF)).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  item.icon,
+                  color: item.iconColor ?? const Color(0xFF6B73FF),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      item.title,
+                      style: GoogleFonts.inter(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: item.titleColor ?? Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      item.subtitle,
+                      style: GoogleFonts.inter(
+                        fontSize: 14,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              _buildTrailing(item),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTrailing(MenuItem item) {
+    if (item.isSwitch && item.onSwitchChanged != null) {
+      return Switch(
+        value: item.switchValue ?? false,
+        onChanged: item.onSwitchChanged,
+        activeColor: const Color(0xFF6B73FF),
+      );
+    }
+    
+    return Icon(
+      Icons.arrow_forward_ios,
+      size: 16,
+      color: item.isDestructive ? Colors.red : Colors.grey,
+    );
+  }
+
+  void _handleMenuItemTap(MenuItem item, MenuProvider menuProvider) {
+    switch (item.id) {
+      case MenuConstants.appInfo:
+        _showAppInfoDialog();
+        break;
+      case MenuConstants.logout:
+        _showLogoutDialog();
+        break;
+      default:
+        if (item.route != null) {
+          context.push(item.route!);
+        } else {
+          menuProvider.handleMenuAction(item.id);
+        }
+    }
   }
 
   Widget _buildSettingsSection(String title, List<Widget> tiles) {
