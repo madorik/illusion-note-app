@@ -29,6 +29,43 @@ class AppColors {
   static const Color neutralGray = Color(0xFF90A4AE);
   static const Color sadPurple = Color(0xFF9575CD);
   static const Color angryRed = Color(0xFFE57373);
+  
+  // 시간대별 배경 그라데이션 색상
+  // 아침 (6-11시): 밝은 노란색, 하늘색 계열
+  static const Color morningStart = Color(0xFFFFF8E1);
+  static const Color morningEnd = Color(0xFFE1F5FE);
+  
+  // 오후 (12-17시): 따뜻한 주황, 노란색 계열
+  static const Color afternoonStart = Color(0xFFFFF3E0);
+  static const Color afternoonEnd = Color(0xFFFFECB3);
+  
+  // 저녁 (18-21시): 분홍, 보라 계열
+  static const Color eveningStart = Color(0xFFF3E5F5);
+  static const Color eveningEnd = Color(0xFFE1BEE7);
+  
+  // 밤 (22-5시): 어두운 남색, 보라 계열
+  static const Color nightStart = Color(0xFFE8EAF6);
+  static const Color nightEnd = Color(0xFFD1C4E9);
+  
+  // 현재 시간에 따른 배경 그라데이션 색상 반환
+  static List<Color> getBackgroundColorsForCurrentTime() {
+    final now = DateTime.now();
+    final hour = now.hour;
+    
+    if (hour >= 6 && hour < 12) {
+      // 아침
+      return [morningStart, morningEnd];
+    } else if (hour >= 12 && hour < 18) {
+      // 오후
+      return [afternoonStart, afternoonEnd];
+    } else if (hour >= 18 && hour < 22) {
+      // 저녁
+      return [eveningStart, eveningEnd];
+    } else {
+      // 밤
+      return [nightStart, nightEnd];
+    }
+  }
 }
 
 class AppTheme {

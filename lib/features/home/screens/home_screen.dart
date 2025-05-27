@@ -124,10 +124,17 @@ class _HomeScreenState extends State<HomeScreen> {
           greeting = '좋은 저녁이에요';
         }
 
+        // 시간대별 배경색 가져오기
+        final backgroundColors = AppColors.getBackgroundColorsForCurrentTime();
+
         return Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: AppColors.cardWhite,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: backgroundColors,
+            ),
             borderRadius: BorderRadius.circular(16),
             boxShadow: AppTheme.cardShadow,
           ),
@@ -268,30 +275,39 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 140,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.cardWhite,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(16),
-          boxShadow: AppTheme.cardShadow,
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.08),
+              blurRadius: 12,
+              offset: const Offset(0, 3),
+            ),
+          ],
+          border: Border.all(
+            color: color.withOpacity(0.1),
+            width: 1,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: color,
-                    size: 20,
-                  ),
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: color.withOpacity(0.2),
+                  width: 1,
                 ),
-              ],
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 20,
+              ),
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
