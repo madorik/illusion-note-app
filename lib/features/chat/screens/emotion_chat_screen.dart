@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../providers/chat_provider.dart';
 import '../widgets/chat_bubble.dart';
 import '../widgets/chat_input.dart';
+import '../../recommendation/screens/recommendation_screen.dart';
 
 class EmotionChatScreen extends StatefulWidget {
   const EmotionChatScreen({super.key});
@@ -70,6 +71,20 @@ class _EmotionChatView extends StatelessWidget {
           },
         ),
         actions: [
+          // 추천 콘텐츠 버튼
+          IconButton(
+            icon: const Icon(
+              Icons.recommend,
+              color: Color(0xFF6B73FF),
+            ),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const RecommendationScreen(),
+                ),
+              );
+            },
+          ),
           Consumer<ChatProvider>(
             builder: (context, chatProvider, _) {
               return IconButton(
@@ -94,6 +109,13 @@ class _EmotionChatView extends StatelessWidget {
                 case 'save':
                   _showSaveSuccessSnackBar(context);
                   break;
+                case 'recommend':
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const RecommendationScreen(),
+                    ),
+                  );
+                  break;
               }
             },
             itemBuilder: (context) => [
@@ -114,6 +136,16 @@ class _EmotionChatView extends StatelessWidget {
                     Icon(Icons.bookmark_border, size: 20),
                     SizedBox(width: 8),
                     Text('대화 저장'),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'recommend',
+                child: Row(
+                  children: [
+                    Icon(Icons.recommend, size: 20),
+                    SizedBox(width: 8),
+                    Text('감정 맞춤 추천'),
                   ],
                 ),
               ),

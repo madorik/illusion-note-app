@@ -33,6 +33,12 @@ class _MainLayoutState extends State<MainLayout> {
       route: '/history',
     ),
     NavigationItem(
+      icon: Icons.recommend_outlined,
+      selectedIcon: Icons.recommend,
+      label: '추천',
+      route: '/recommendation',
+    ),
+    NavigationItem(
       icon: Icons.calendar_month_outlined,
       selectedIcon: Icons.calendar_month,
       label: '캘린더',
@@ -143,6 +149,16 @@ class _MainLayoutState extends State<MainLayout> {
                     ],
                   ),
                 ),
+                const PopupMenuItem(
+                  value: 'recommendation',
+                  child: Row(
+                    children: [
+                      Icon(Icons.recommend_outlined, size: 20, color: Color(0xFF6B73FF)),
+                      SizedBox(width: 12),
+                      Text('감정 맞춤 추천'),
+                    ],
+                  ),
+                ),
               ],
             ),
             title: Text(
@@ -217,6 +233,10 @@ class _MainLayoutState extends State<MainLayout> {
         return '착각노트';
       case 1:
         return '감정 기록';
+      case 2:
+        return '감정 맞춤 추천';
+      case 3:
+        return '감정 캘린더';
       default:
         return '착각노트';
     }
@@ -314,6 +334,9 @@ class _MainLayoutState extends State<MainLayout> {
         break;
       case 'chat':
         context.push('/emotion-chat');
+        break;
+      case 'recommendation':
+        context.push('/recommendation');
         break;
     }
   }

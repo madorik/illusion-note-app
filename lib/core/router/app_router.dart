@@ -10,6 +10,8 @@ import '../../features/history/screens/calendar_screen.dart';
 import '../../features/history/screens/emotion_detail_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
 import '../../features/chat/screens/emotion_chat_screen.dart';
+import '../../features/recommendation/screens/recommendation_screen.dart';
+import '../../features/recommendation/screens/content_detail_screen.dart';
 import '../../shared/widgets/main_layout.dart';
 import '../../core/models/emotion_analysis_model.dart';
 
@@ -76,6 +78,13 @@ class AppRouter {
             name: 'calendar',
             builder: (context, state) => const CalendarScreen(),
           ),
+          
+          // Recommendation (메인 네비게이션에 추가)
+          GoRoute(
+            path: '/recommendation',
+            name: 'recommendation',
+            builder: (context, state) => const RecommendationScreen(),
+          ),
         ],
       ),
       
@@ -119,6 +128,16 @@ class AppRouter {
         name: 'emotion-chat',
         builder: (context, state) => const EmotionChatScreen(),
       ),
+      
+      // Content Detail (Full Screen)
+      GoRoute(
+        path: '/content-detail',
+        name: 'content-detail',
+        builder: (context, state) {
+          final content = state.extra as dynamic;
+          return ContentDetailScreen(content: content);
+        },
+      ),
     ],
   );
 }
@@ -135,4 +154,6 @@ class Routes {
   static const String emotionDetail = '/emotion-detail';
   static const String settings = '/settings';
   static const String emotionChat = '/emotion-chat';
+  static const String recommendation = '/recommendation';
+  static const String contentDetail = '/content-detail';
 } 

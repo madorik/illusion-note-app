@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
+import '../../recommendation/screens/recommendation_screen.dart';
 
 class ChatInput extends StatelessWidget {
   const ChatInput({super.key});
@@ -120,21 +121,47 @@ class ChatInput extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  child: Text(
-                    '현재 감정을 선택하세요',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        '현재 감정을 선택하세요',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      TextButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const RecommendationScreen(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(
+                          Icons.recommend,
+                          size: 16,
+                          color: Color(0xFF6B73FF),
+                        ),
+                        label: const Text(
+                          '맞춤 추천',
+                          style: TextStyle(
+                            color: Color(0xFF6B73FF),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 const SizedBox(height: 4),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 20),
                   child: Text(
-                    '선택한 감정을 바탕으로 대화를 시작할 수 있어요.',
+                    '선택한 감정을 바탕으로 대화를 시작하고 맞춤 콘텐츠를 추천받을 수 있어요.',
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
@@ -174,9 +201,9 @@ class ChatInput extends StatelessWidget {
         final provider = Provider.of<ChatProvider>(context, listen: false);
         provider.textController.text = '저는 지금 $emotion 감정을 느끼고 있어요.';
         provider.setCurrentInput(provider.textController.text);
-        if (Navigator.of(context).canPop()) {
-          Navigator.pop(context);
-        }
+        
+        // 감정 선택 후 액션 선택 다이얼로그 표시
+        _showEmotionActionDialog(context, emotion);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -195,6 +222,91 @@ class ChatInput extends StatelessWidget {
             color: Color(0xFF6B73FF),
             fontWeight: FontWeight.w500,
           ),
+        ),
+      ),
+    );
+  }
+  
+  void _showEmotionActionDialog(BuildContext context, String emotion) {
+    Future.microtask(() {
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text('$emotion 감정을 선택했습니다'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('$emotion 감정에 대해 어떤 도움이 필요하신가요?'),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: _buildActionButton(
+                      dialogContext,
+                      '대화하기',
+                      Icons.chat_bubble_outline,
+                      const Color(0xFF6B73FF),
+                      () {
+                        // 대화 선택 시, 모달 닫고 채팅 입력 상태 유지
+                        if (Navigator.of(dialogContext).canPop()) {
+                          Navigator.of(dialogContext).pop();
+                        }
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: _buildActionButton(
+                      dialogContext,
+                      '추천 콘텐츠',
+                      Icons.recommend,
+                      const Color(0xFF64B5F6),
+                      () {
+                        // 추천 콘텐츠 화면으로 이동
+                        if (Navigator.of(dialogContext).canPop()) {
+                          Navigator.of(dialogContext).pop();
+                        }
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const RecommendationScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+  
+  Widget _buildActionButton(
+    BuildContext context,
+    String label,
+    IconData icon,
+    Color color,
+    VoidCallback onPressed,
+  ) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 20),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: color,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
         ),
       ),
     );

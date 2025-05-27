@@ -227,6 +227,30 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: _buildActionCard(
+                '감정 대화',
+                'AI와 감정에 대해\n대화해보세요',
+                Icons.chat_bubble_outline,
+                const Color(0xFF6B73FF),
+                () => context.push('/emotion-chat'),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: _buildActionCard(
+                '맞춤 추천',
+                '감정에 맞는 콘텐츠를\n추천받아보세요',
+                Icons.recommend_outlined,
+                const Color(0xFF64B5F6),
+                () => context.push('/recommendation'),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
