@@ -133,6 +133,16 @@ class _MainLayoutState extends State<MainLayout> {
                     ],
                   ),
                 ),
+                const PopupMenuItem(
+                  value: 'chat',
+                  child: Row(
+                    children: [
+                      Icon(Icons.chat_outlined, size: 20, color: Color(0xFF6B73FF)),
+                      SizedBox(width: 12),
+                      Text('감정 대화'),
+                    ],
+                  ),
+                ),
               ],
             ),
             title: Text(
@@ -301,6 +311,9 @@ class _MainLayoutState extends State<MainLayout> {
         break;
       case 'statistics':
         context.push('/statistics');
+        break;
+      case 'chat':
+        context.push('/emotion-chat');
         break;
     }
   }

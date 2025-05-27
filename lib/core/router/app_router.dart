@@ -9,6 +9,7 @@ import '../../features/history/screens/history_screen.dart';
 import '../../features/history/screens/calendar_screen.dart';
 import '../../features/history/screens/emotion_detail_screen.dart';
 import '../../features/settings/screens/settings_screen.dart';
+import '../../features/chat/screens/emotion_chat_screen.dart';
 import '../../shared/widgets/main_layout.dart';
 import '../../core/models/emotion_analysis_model.dart';
 
@@ -111,6 +112,13 @@ class AppRouter {
         name: 'settings',
         builder: (context, state) => const SettingsScreen(),
       ),
+      
+      // Emotion Chat (Full Screen)
+      GoRoute(
+        path: '/emotion-chat',
+        name: 'emotion-chat',
+        builder: (context, state) => const EmotionChatScreen(),
+      ),
     ],
   );
 }
@@ -126,4 +134,5 @@ class Routes {
   static const String analysisResult = '/analysis-result';
   static const String emotionDetail = '/emotion-detail';
   static const String settings = '/settings';
+  static const String emotionChat = '/emotion-chat';
 } 
