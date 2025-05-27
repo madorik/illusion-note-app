@@ -106,62 +106,66 @@ class ChatInput extends StatelessWidget {
       '기쁨', '희망', '좌절', '안도', '무기력', '설렘', '후회'
     ];
 
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  '현재 감정을 선택하세요',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+    Future.microtask(() {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (bottomSheetContext) {
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    '현재 감정을 선택하세요',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  '선택한 감정을 바탕으로 대화를 시작할 수 있어요.',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey,
+                const SizedBox(height: 4),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    '선택한 감정을 바탕으로 대화를 시작할 수 있어요.',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                height: 240,
-                child: GridView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 2.5,
+                const SizedBox(height: 20),
+                SizedBox(
+                  height: 240,
+                  child: GridView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    physics: const BouncingScrollPhysics(),
+                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 2.5,
+                    ),
+                    itemCount: emotions.length,
+                    itemBuilder: (context, index) {
+                      final emotion = emotions[index];
+                      return _buildEmotionItem(bottomSheetContext, emotion);
+                    },
                   ),
-                  itemCount: emotions.length,
-                  itemBuilder: (context, index) {
-                    final emotion = emotions[index];
-                    return _buildEmotionItem(context, emotion);
-                  },
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+              ],
+            ),
+          );
+        },
+      );
+    });
   }
 
   Widget _buildEmotionItem(BuildContext context, String emotion) {
@@ -170,7 +174,9 @@ class ChatInput extends StatelessWidget {
         final provider = Provider.of<ChatProvider>(context, listen: false);
         provider.textController.text = '저는 지금 $emotion 감정을 느끼고 있어요.';
         provider.setCurrentInput(provider.textController.text);
-        Navigator.pop(context);
+        if (Navigator.of(context).canPop()) {
+          Navigator.pop(context);
+        }
       },
       child: Container(
         decoration: BoxDecoration(
