@@ -33,11 +33,33 @@ class _RecommendationViewState extends State<_RecommendationView> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
+      appBar: AppBar(
+        title: const Text(
+          '감정 맞춤 추천',
+          style: TextStyle(
+            color: Color(0xFF2D3748),
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Color(0xFF2D3748),
+            size: 20,
+          ),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: Consumer<RecommendationProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading) {
             return const Center(
-              child: CircularProgressIndicator(),
+              child: CircularProgressIndicator(
+                color: Color(0xFF6B73FF),
+              ),
             );
           }
 
@@ -60,107 +82,42 @@ class _RecommendationViewState extends State<_RecommendationView> {
               ? filteredContents.where((content) => content.type == _selectedType).toList()
               : filteredContents;
 
-          return NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                SliverAppBar(
-                  expandedHeight: 120.0,
-                  floating: true,
-                  pinned: true,
-                  backgroundColor: Colors.white,
-                  elevation: 0,
-                  leading: IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back_ios,
-                      color: Color(0xFF2D3748),
-                      size: 20,
-                    ),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  flexibleSpace: FlexibleSpaceBar(
-                    titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-                    title: const Text(
-                      '감정 맞춤 추천',
-                      style: TextStyle(
-                        color: Color(0xFF2D3748),
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    background: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            const Color(0xFF6B73FF).withOpacity(0.1),
-                            Colors.white,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                SliverPersistentHeader(
-                  delegate: _EmotionFilterHeader(
-                    emotions: provider.frequentEmotions,
-                    selectedEmotion: _selectedEmotion,
-                    onEmotionSelected: (emotion) {
-                      setState(() {
-                        if (_selectedEmotion == emotion) {
-                          _selectedEmotion = null; // 이미 선택된 감정을 다시 누르면 필터 해제
-                        } else {
-                          _selectedEmotion = emotion;
-                        }
-                      });
-                    },
-                  ),
-                  pinned: true,
-                ),
-                SliverPersistentHeader(
-                  delegate: _ContentTypeFilterHeader(
-                    selectedType: _selectedType,
-                    onTypeSelected: (type) {
-                      setState(() {
-                        if (_selectedType == type) {
-                          _selectedType = null; // 이미 선택된 타입을 다시 누르면 필터 해제
-                        } else {
-                          _selectedType = type;
-                        }
-                      });
-                    },
-                  ),
-                  pinned: true,
-                ),
-              ];
-            },
-            body: displayContents.isEmpty
-                ? _buildNoContentState()
-                : RefreshIndicator(
-                    onRefresh: () async {
-                      // 새로고침 로직
-                      await Provider.of<RecommendationProvider>(context, listen: false).refreshData();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: GridView.builder(
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          childAspectRatio: 0.75,
-                          crossAxisSpacing: 16,
-                          mainAxisSpacing: 16,
-                        ),
-                        itemCount: displayContents.length,
-                        itemBuilder: (context, index) {
-                          final content = displayContents[index];
-                          return ContentCard(
-                            content: content,
-                            onTap: () => _navigateToContentDetail(context, content),
-                          );
+          return Column(
+            children: [
+              // 감정 필터
+              _buildEmotionFilter(provider.frequentEmotions),
+              
+              // 콘텐츠 타입 필터
+              _buildContentTypeFilter(),
+              
+              // 콘텐츠 그리드
+              Expanded(
+                child: displayContents.isEmpty
+                    ? _buildNoContentState()
+                    : RefreshIndicator(
+                        onRefresh: () async {
+                          await provider.refreshData();
                         },
+                        child: GridView.builder(
+                          padding: const EdgeInsets.all(16),
+                                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.68,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                        ),
+                          itemCount: displayContents.length,
+                          itemBuilder: (context, index) {
+                            final content = displayContents[index];
+                            return ContentCard(
+                              content: content,
+                              onTap: () => _navigateToContentDetail(context, content),
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ),
+              ),
+            ],
           );
         },
       ),
@@ -174,6 +131,183 @@ class _RecommendationViewState extends State<_RecommendationView> {
         },
         backgroundColor: const Color(0xFF6B73FF),
         child: const Icon(Icons.refresh),
+      ),
+    );
+  }
+
+  Widget _buildEmotionFilter(List<String> emotions) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            '당신의 감정',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2D3748),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 36,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: emotions.length,
+              itemBuilder: (context, index) {
+                final emotion = emotions[index];
+                final isSelected = emotion == _selectedEmotion;
+                final color = EmotionColors.getColorForEmotion(emotion);
+                
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (_selectedEmotion == emotion) {
+                          _selectedEmotion = null;
+                        } else {
+                          _selectedEmotion = emotion;
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: isSelected ? color : color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: color,
+                          width: 1,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        emotion,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : color,
+                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContentTypeFilter() {
+    final types = ContentType.values;
+    
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            '콘텐츠 타입',
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF2D3748),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 36,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: types.length,
+              itemBuilder: (context, index) {
+                final type = types[index];
+                final isSelected = type == _selectedType;
+                
+                String typeLabel;
+                switch (type) {
+                  case ContentType.music:
+                    typeLabel = '음악';
+                    break;
+                  case ContentType.meditation:
+                    typeLabel = '명상';
+                    break;
+                  case ContentType.quote:
+                    typeLabel = '명언';
+                    break;
+                  case ContentType.tip:
+                    typeLabel = '심리 팁';
+                    break;
+                }
+                
+                final dummyContent = RecommendedContent(
+                  id: '',
+                  title: '',
+                  description: '',
+                  type: type,
+                  emotions: [],
+                  createdAt: DateTime.now(),
+                );
+                
+                final color = dummyContent.typeColor;
+                
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (_selectedType == type) {
+                          _selectedType = null;
+                        } else {
+                          _selectedType = type;
+                        }
+                      });
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: isSelected ? color : color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(18),
+                        border: Border.all(
+                          color: color,
+                          width: 1,
+                        ),
+                      ),
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            dummyContent.typeIcon,
+                            size: 16,
+                            color: isSelected ? Colors.white : color,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            typeLabel,
+                            style: TextStyle(
+                              color: isSelected ? Colors.white : color,
+                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -199,10 +333,10 @@ class _RecommendationViewState extends State<_RecommendationView> {
           ),
           const SizedBox(height: 24),
           ElevatedButton(
-                          onPressed: () {
-                // 다시 시도 로직
-                Provider.of<RecommendationProvider>(context, listen: false).refreshData();
-              },
+            onPressed: () {
+              // 다시 시도 로직
+              Provider.of<RecommendationProvider>(context, listen: false).refreshData();
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF6B73FF),
               foregroundColor: Colors.white,
@@ -313,218 +447,5 @@ class _RecommendationViewState extends State<_RecommendationView> {
         builder: (context) => ContentDetailScreen(content: content),
       ),
     );
-  }
-}
-
-class _EmotionFilterHeader extends SliverPersistentHeaderDelegate {
-  final List<String> emotions;
-  final String? selectedEmotion;
-  final Function(String) onEmotionSelected;
-
-  _EmotionFilterHeader({
-    required this.emotions,
-    this.selectedEmotion,
-    required this.onEmotionSelected,
-  });
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              '당신의 감정',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3748),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 40,
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              scrollDirection: Axis.horizontal,
-              itemCount: emotions.length,
-              itemBuilder: (context, index) {
-                final emotion = emotions[index];
-                final isSelected = emotion == selectedEmotion;
-                final color = EmotionColors.getColorForEmotion(emotion);
-                
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => onEmotionSelected(emotion),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected ? color : color.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: color,
-                          width: 1,
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        emotion,
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : color,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => 80;
-
-  @override
-  double get minExtent => 80;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
-  }
-}
-
-class _ContentTypeFilterHeader extends SliverPersistentHeaderDelegate {
-  final ContentType? selectedType;
-  final Function(ContentType) onTypeSelected;
-
-  _ContentTypeFilterHeader({
-    this.selectedType,
-    required this.onTypeSelected,
-  });
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    final types = ContentType.values;
-
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              '콘텐츠 타입',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3748),
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 40,
-            child: ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              scrollDirection: Axis.horizontal,
-              itemCount: types.length,
-              itemBuilder: (context, index) {
-                final type = types[index];
-                final isSelected = type == selectedType;
-                
-                String typeLabel;
-                switch (type) {
-                  case ContentType.music:
-                    typeLabel = '음악';
-                    break;
-                  case ContentType.meditation:
-                    typeLabel = '명상';
-                    break;
-                  case ContentType.quote:
-                    typeLabel = '명언';
-                    break;
-                  case ContentType.tip:
-                    typeLabel = '심리 팁';
-                    break;
-                }
-                
-                final dummyContent = RecommendedContent(
-                  id: '',
-                  title: '',
-                  description: '',
-                  type: type,
-                  emotions: [],
-                  createdAt: DateTime.now(),
-                );
-                
-                final color = dummyContent.typeColor;
-                
-                return Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: GestureDetector(
-                    onTap: () => onTypeSelected(type),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected ? color : color.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: color,
-                          width: 1,
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            dummyContent.typeIcon,
-                            size: 16,
-                            color: isSelected ? Colors.white : color,
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            typeLabel,
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : color,
-                              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => 80;
-
-  @override
-  double get minExtent => 80;
-
-  @override
-  bool shouldRebuild(covariant SliverPersistentHeaderDelegate oldDelegate) {
-    return true;
   }
 } 

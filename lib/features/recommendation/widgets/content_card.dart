@@ -36,8 +36,9 @@ class ContentCard extends StatelessWidget {
                 topLeft: Radius.circular(16),
                 topRight: Radius.circular(16),
               ),
-              child: AspectRatio(
-                aspectRatio: 1.3,
+              child: SizedBox(
+                height: 110,
+                width: double.infinity,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -68,8 +69,8 @@ class ContentCard extends StatelessWidget {
                     ),
                     // 콘텐츠 타입 배지
                     Positioned(
-                      top: 10,
-                      right: 10,
+                      top: 8,
+                      right: 8,
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
@@ -102,57 +103,68 @@ class ContentCard extends StatelessWidget {
               ),
             ),
             // 콘텐츠 정보
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: SizedBox(
+                height: 70,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // 제목
-                    Text(
-                      content.title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF2D3748),
+                    Flexible(
+                      child: Text(
+                        content.title,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF2D3748),
+                          height: 1.2,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     // 설명
                     Text(
                       content.description,
                       style: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 11,
                         color: Color(0xFF718096),
+                        height: 1.2,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const Spacer(),
+                    const SizedBox(height: 6),
                     // 감정 태그
                     if (content.emotions.isNotEmpty)
-                      Wrap(
-                        spacing: 4,
-                        runSpacing: 4,
-                        children: content.emotions.take(2).map((emotion) {
-                          return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: EmotionColors.getColorForEmotion(emotion).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              emotion,
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: EmotionColors.getColorForEmotion(emotion),
-                                fontWeight: FontWeight.w500,
+                      SizedBox(
+                        height: 18,
+                        child: ListView.separated(
+                          scrollDirection: Axis.horizontal,
+                          separatorBuilder: (context, index) => const SizedBox(width: 4),
+                          itemCount: content.emotions.length > 2 ? 2 : content.emotions.length,
+                          itemBuilder: (context, index) {
+                            final emotion = content.emotions[index];
+                            return Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: EmotionColors.getColorForEmotion(emotion).withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                            ),
-                          );
-                        }).toList(),
+                              child: Text(
+                                emotion,
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  color: EmotionColors.getColorForEmotion(emotion),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                   ],
                 ),
