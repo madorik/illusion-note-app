@@ -39,6 +39,12 @@ class _MainLayoutState extends State<MainLayout> {
       route: '/recommendation',
     ),
     NavigationItem(
+      icon: Icons.psychology_outlined,
+      selectedIcon: Icons.psychology,
+      label: '심리검사',
+      route: '/psychology',
+    ),
+    NavigationItem(
       icon: Icons.calendar_month_outlined,
       selectedIcon: Icons.calendar_month,
       label: '캘린더',
@@ -159,6 +165,16 @@ class _MainLayoutState extends State<MainLayout> {
                     ],
                   ),
                 ),
+                const PopupMenuItem(
+                  value: 'psychology',
+                  child: Row(
+                    children: [
+                      Icon(Icons.psychology_outlined, size: 20, color: Color(0xFF6B73FF)),
+                      SizedBox(width: 12),
+                      Text('심리 검사'),
+                    ],
+                  ),
+                ),
               ],
             ),
             title: Text(
@@ -236,6 +252,8 @@ class _MainLayoutState extends State<MainLayout> {
       case 2:
         return '감정 맞춤 추천';
       case 3:
+        return '심리 검사';
+      case 4:
         return '감정 캘린더';
       default:
         return '착각노트';
@@ -337,6 +355,9 @@ class _MainLayoutState extends State<MainLayout> {
         break;
       case 'recommendation':
         context.push('/recommendation');
+        break;
+      case 'psychology':
+        context.push('/psychology');
         break;
     }
   }

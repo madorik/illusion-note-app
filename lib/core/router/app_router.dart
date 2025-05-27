@@ -12,8 +12,13 @@ import '../../features/settings/screens/settings_screen.dart';
 import '../../features/chat/screens/emotion_chat_screen.dart';
 import '../../features/recommendation/screens/recommendation_screen.dart';
 import '../../features/recommendation/screens/content_detail_screen.dart';
+import '../../features/psychology/screens/psychology_test_list_screen.dart';
+import '../../features/psychology/screens/psychology_test_question_screen.dart';
+import '../../features/psychology/screens/psychology_test_result_screen.dart';
+import '../../features/psychology/screens/psychology_test_history_screen.dart';
 import '../../shared/widgets/main_layout.dart';
 import '../../core/models/emotion_analysis_model.dart';
+import '../../core/models/psychology_test_model.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -85,6 +90,13 @@ class AppRouter {
             name: 'recommendation',
             builder: (context, state) => const RecommendationScreen(),
           ),
+          
+          // Psychology (심리 검사)
+          GoRoute(
+            path: '/psychology',
+            name: 'psychology',
+            builder: (context, state) => const PsychologyTestListScreen(),
+          ),
         ],
       ),
       
@@ -138,6 +150,30 @@ class AppRouter {
           return ContentDetailScreen(content: content);
         },
       ),
+      
+      // Psychology Test Question (Full Screen)
+      GoRoute(
+        path: '/psychology-test-question',
+        name: 'psychology-test-question',
+        builder: (context, state) => const PsychologyTestQuestionScreen(),
+      ),
+      
+      // Psychology Test Result (Full Screen)
+      GoRoute(
+        path: '/psychology-test-result',
+        name: 'psychology-test-result',
+        builder: (context, state) {
+          final result = state.extra as PsychologyTestResult?;
+          return PsychologyTestResultScreen(resultFromHistory: result);
+        },
+      ),
+      
+      // Psychology Test History (Full Screen)
+      GoRoute(
+        path: '/psychology-test-history',
+        name: 'psychology-test-history',
+        builder: (context, state) => const PsychologyTestHistoryScreen(),
+      ),
     ],
   );
 }
@@ -156,4 +192,8 @@ class Routes {
   static const String emotionChat = '/emotion-chat';
   static const String recommendation = '/recommendation';
   static const String contentDetail = '/content-detail';
+  static const String psychology = '/psychology';
+  static const String psychologyTestQuestion = '/psychology-test-question';
+  static const String psychologyTestResult = '/psychology-test-result';
+  static const String psychologyTestHistory = '/psychology-test-history';
 } 

@@ -9,6 +9,7 @@ import 'features/auth/providers/auth_provider.dart';
 import 'features/emotion/providers/emotion_provider.dart';
 import 'features/history/providers/history_provider.dart';
 import 'features/settings/providers/menu_provider.dart';
+import 'features/psychology/providers/psychology_test_provider.dart';
 import 'services/service_locator.dart';
 import 'core/examples/emotion_test.dart';
 
@@ -45,6 +46,7 @@ class IllusionApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => EmotionProvider()),
         ChangeNotifierProvider(create: (_) => HistoryProvider()),
         ChangeNotifierProvider(create: (_) => MenuProvider()),
+        ChangeNotifierProvider(create: (_) => PsychologyTestProvider()),
       ],
       child: MaterialApp.router(
         title: '착각노트',
