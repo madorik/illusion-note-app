@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/models/emotion_analysis_model.dart';
@@ -82,13 +81,45 @@ class EmotionDetailScreen extends StatelessWidget {
               color: _getEmotionColorFromString(post.emotion),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Text(
-              post.emotion,
-              style: GoogleFonts.inter(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // 감정 이미지
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.asset(
+                      _getEmotionImagePath(post.emotion),
+                      width: 20,
+                      height: 20,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        debugPrint('❌ Image load error: $error');
+                        debugPrint('❌ Image path: ${_getEmotionImagePath(post.emotion)}');
+                        return const Icon(
+                          Icons.mood,
+                          color: Colors.white,
+                          size: 16,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  post.emotion,
+                  style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
           ),
           
@@ -279,16 +310,6 @@ class EmotionDetailScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 감정 분석
-                _buildAnalysisItem(
-                  '감정',
-                  post.emotion,
-                  Icons.favorite,
-                  const Color(0xFFEF4444),
-                ),
-                
-                const SizedBox(height: 20),
-                
                 // AI 응답
                 if (post.response.isNotEmpty) ...[
                   _buildAnalysisSection(
@@ -328,58 +349,7 @@ class EmotionDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAnalysisItem(String label, String value, IconData icon, Color color) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 16,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: GoogleFonts.inter(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: const Color(0xFF6B7280),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: color.withOpacity(0.2)),
-                ),
-                child: Text(
-                  value,
-                  style: GoogleFonts.inter(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+
 
   Widget _buildAnalysisSection(String label, String content, IconData icon, Color color) {
     return Column(
@@ -444,6 +414,52 @@ class EmotionDetailScreen extends StatelessWidget {
       default:
         return '분석 모드';
     }
+  }
+
+  String _getEmotionImagePath(String emotion) {
+    // 디버깅: 실제 emotion 값 확인
+    debugPrint('🔍 Original emotion: "$emotion"');
+    
+    // API 응답의 emotion 값을 이미지 파일명과 맵핑
+    // 정확한 문자열 매칭을 위해 trim()과 toLowerCase() 적용
+    final cleanEmotion = emotion.trim().toLowerCase();
+    debugPrint('🔍 Clean emotion: "$cleanEmotion"');
+    
+    String imagePath;
+    
+    // 감정 키워드 포함 여부로 매칭 (더 유연한 매칭)
+    if (cleanEmotion.contains('기쁨') || cleanEmotion.contains('행복') || 
+        cleanEmotion.contains('좋') || cleanEmotion.contains('즐거') ||
+        cleanEmotion.contains('만족') || cleanEmotion.contains('joy') ||
+        cleanEmotion.contains('happy')) {
+      imagePath = 'assets/images/emotion/기쁨.png';
+    }
+    else if (cleanEmotion.contains('슬픔') || cleanEmotion.contains('슬프') ||
+        cleanEmotion.contains('아쉬') || cleanEmotion.contains('속상') ||
+        cleanEmotion.contains('sad') || cleanEmotion.contains('우')) {
+      imagePath = 'assets/images/emotion/슬픔.png';
+    }
+    else if (cleanEmotion.contains('화') || cleanEmotion.contains('분노') ||
+        cleanEmotion.contains('짜증') || cleanEmotion.contains('angry') ||
+        cleanEmotion.contains('anger')) {
+      imagePath = 'assets/images/emotion/화남.png';
+    }
+    else if (cleanEmotion.contains('불안') || cleanEmotion.contains('걱정') ||
+        cleanEmotion.contains('초조') || cleanEmotion.contains('anxious') ||
+        cleanEmotion.contains('worried')) {
+      imagePath = 'assets/images/emotion/불안.png';
+    }
+    else if (cleanEmotion.contains('우울') || cleanEmotion.contains('depressed') ||
+        cleanEmotion.contains('depression')) {
+      imagePath = 'assets/images/emotion/우울.png';
+    }
+    else {
+      // 기본값
+      imagePath = 'assets/images/emotion/보통.png';
+    }
+    
+    debugPrint('✅ Selected image path: $imagePath');
+    return imagePath;
   }
 
   Color _getEmotionColorFromString(String emotion) {
