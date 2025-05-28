@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../../../core/models/emotion_analysis_model.dart';
 import '../../../core/utils/time_utils.dart';
 import '../../../core/utils/emotion_utils.dart';
@@ -13,7 +12,7 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  DateTime _currentDate = DateTime.now();
+  DateTime _currentWeekStart = DateTime.now();
   DateTime? _selectedDate;
   List<EmotionPost> _selectedDatePosts = [];
   List<EmotionPost> _allPosts = [];
@@ -23,8 +22,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedDate = TimeUtils.nowInKorea();
+    final now = TimeUtils.nowInKorea();
+    _selectedDate = now;
+    // 이번 주의 시작일(일요일) 계산
+    _currentWeekStart = _getWeekStart(now);
     _loadAllPosts();
+  }
+
+  // 주의 시작일(일요일) 계산
+  DateTime _getWeekStart(DateTime date) {
+    final weekday = date.weekday % 7; // 0: 일요일, 1: 월요일, ...
+    return date.subtract(Duration(days: weekday));
+  }
+
+  // 주의 마지막일(토요일) 계산
+  DateTime _getWeekEnd(DateTime weekStart) {
+    return weekStart.add(const Duration(days: 6));
   }
 
   Future<void> _loadAllPosts() async {
@@ -84,20 +97,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _filterPostsForDate(date);
   }
 
-  void _previousMonth() {
+  void _previousWeek() {
     setState(() {
-      _currentDate = DateTime(_currentDate.year, _currentDate.month - 1);
-      // 이전 달의 첫 번째 날로 선택 날짜 변경
-      _selectedDate = DateTime(_currentDate.year, _currentDate.month, 1);
+      _currentWeekStart = _currentWeekStart.subtract(const Duration(days: 7));
+      // 이전 주의 첫 번째 날로 선택 날짜 변경
+      _selectedDate = _currentWeekStart;
     });
     _filterPostsForDate(_selectedDate!);
   }
 
-  void _nextMonth() {
+  void _nextWeek() {
     setState(() {
-      _currentDate = DateTime(_currentDate.year, _currentDate.month + 1);
-      // 다음 달의 첫 번째 날로 선택 날짜 변경
-      _selectedDate = DateTime(_currentDate.year, _currentDate.month, 1);
+      _currentWeekStart = _currentWeekStart.add(const Duration(days: 7));
+      // 다음 주의 첫 번째 날로 선택 날짜 변경
+      _selectedDate = _currentWeekStart;
     });
     _filterPostsForDate(_selectedDate!);
   }
@@ -127,11 +140,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
           // 요일 헤더
           _buildWeekdayHeader(),
           
-          // 달력 그리드
+          // 주간 달력 그리드
           if (!_isCalendarCollapsed)
-            Expanded(
-              flex: 3,
-              child: _buildCalendarGrid(),
+            SizedBox(
+              height: 80, // 높이를 고정값으로 설정
+              child: _buildWeeklyCalendarGrid(),
             ),
           
           // 접기 버튼
@@ -139,7 +152,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
           
           // 선택된 날짜의 기록
           Expanded(
-            flex: _isCalendarCollapsed ? 5 : 2,
             child: _buildSelectedDateRecords(),
           ),
         ],
@@ -148,25 +160,36 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildCalendarHeader() {
+    final weekEnd = _getWeekEnd(_currentWeekStart);
+    String headerText;
+    
+    if (_currentWeekStart.month == weekEnd.month) {
+      // 같은 달인 경우
+      headerText = '${_currentWeekStart.year}년 ${_currentWeekStart.month}월 ${_currentWeekStart.day}일 - ${weekEnd.day}일';
+    } else {
+      // 다른 달인 경우
+      headerText = '${_currentWeekStart.month}/${_currentWeekStart.day} - ${weekEnd.month}/${weekEnd.day}';
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           IconButton(
-            onPressed: _previousMonth,
+            onPressed: _previousWeek,
             icon: const Icon(Icons.chevron_left, color: Colors.grey),
           ),
           Text(
-            '${_currentDate.year}년 ${_currentDate.month}월',
+            headerText,
             style: const TextStyle(
-              fontSize: 18,
+              fontSize: 16,
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
           IconButton(
-            onPressed: _nextMonth,
+            onPressed: _nextWeek,
             icon: const Icon(Icons.chevron_right, color: Colors.grey),
           ),
         ],
@@ -209,29 +232,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildCalendarGrid() {
-    final firstDayOfMonth = DateTime(_currentDate.year, _currentDate.month, 1);
-    final lastDayOfMonth = DateTime(_currentDate.year, _currentDate.month + 1, 0);
-    final firstWeekday = firstDayOfMonth.weekday % 7; // 0: 일요일, 1: 월요일, ...
-    final daysInMonth = lastDayOfMonth.day;
-
+  Widget _buildWeeklyCalendarGrid() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 7,
-          childAspectRatio: 1,
-        ),
-        itemCount: 42, // 6주 * 7일
-        itemBuilder: (context, index) {
-          final dayIndex = index - firstWeekday;
-          
-          if (dayIndex < 0 || dayIndex >= daysInMonth) {
-            return const SizedBox(); // 빈 셀
-          }
-          
-          final day = dayIndex + 1;
-          final date = DateTime(_currentDate.year, _currentDate.month, day);
+      child: Row(
+        children: List.generate(7, (index) {
+          final date = _currentWeekStart.add(Duration(days: index));
           final isSelected = _selectedDate != null &&
               _selectedDate!.year == date.year &&
               _selectedDate!.month == date.month &&
@@ -242,48 +248,48 @@ class _CalendarScreenState extends State<CalendarScreen> {
               koreaToday.day == date.day;
 
           // 요일별 색상
-          final weekday = index % 7;
           Color textColor = Colors.black;
-          if (weekday == 0) textColor = Colors.red; // 일요일
-          if (weekday == 6) textColor = Colors.blue; // 토요일
+          if (index == 0) textColor = Colors.red; // 일요일
+          if (index == 6) textColor = Colors.blue; // 토요일
 
-          return GestureDetector(
-            onTap: () => _onDateSelected(date),
-            child: Container(
-              margin: const EdgeInsets.all(2),
-              decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF7B9CDB) : Colors.transparent,
-                shape: BoxShape.circle,
-              ),
-              child: Center(
+          return Expanded(
+            child: GestureDetector(
+              onTap: () => _onDateSelected(date),
+              child: Container(
+                margin: const EdgeInsets.all(2),
+                height: 70,
+                decoration: BoxDecoration(
+                  color: isSelected ? const Color(0xFF7B9CDB) : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      '$day',
+                      '${date.day}',
                       style: TextStyle(
                         color: isSelected ? Colors.white : textColor,
                         fontSize: 16,
                         fontWeight: isToday ? FontWeight.bold : FontWeight.normal,
                       ),
-                                         ),
-                     // 기록이 있는 날짜에 점 표시
-                     if (!isSelected && _hasPostsOnDate(date))
-                       Container(
-                         width: 4,
-                         height: 4,
-                         margin: const EdgeInsets.only(top: 2),
-                         decoration: const BoxDecoration(
-                           color: Colors.orange,
-                           shape: BoxShape.circle,
-                         ),
-                       ),
+                    ),
+                    const SizedBox(height: 4),
+                    // 기록이 있는 날짜에 점 표시
+                    if (!isSelected && _hasPostsOnDate(date))
+                      Container(
+                        width: 4,
+                        height: 4,
+                        decoration: const BoxDecoration(
+                          color: Colors.orange,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
                   ],
                 ),
               ),
             ),
           );
-        },
+        }),
       ),
     );
   }
