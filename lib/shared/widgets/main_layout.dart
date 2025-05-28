@@ -27,17 +27,12 @@ class _MainLayoutState extends State<MainLayout> {
       route: '/home',
     ),
     NavigationItem(
-      icon: Icons.history_outlined,
-      selectedIcon: Icons.history,
-      label: '기록',
-      route: '/history',
+      icon: Icons.chat_outlined,
+      selectedIcon: Icons.chat,
+      label: '감정대화',
+      route: '/emotion-chat'
     ),
-    NavigationItem(
-      icon: Icons.recommend_outlined,
-      selectedIcon: Icons.recommend,
-      label: '추천',
-      route: '/recommendation',
-    ),
+
     NavigationItem(
       icon: Icons.psychology_outlined,
       selectedIcon: Icons.psychology,
