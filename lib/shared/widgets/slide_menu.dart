@@ -193,6 +193,13 @@ class _SlideMenuState extends State<SlideMenu> with SingleTickerProviderStateMix
                     route: '/help',
                     color: const Color(0xFF6B7280),
                   ),
+                  _MenuItemData(
+                    icon: Icons.local_hospital_outlined,
+                    title: '전문 도움받기',
+                    subtitle: '심리 치료사 및 전문 상담',
+                    route: '/professional-help',
+                    color: const Color(0xFFEF4444),
+                  ),
                 ]),
                 
                 const SizedBox(height: 20),
@@ -323,6 +330,7 @@ class _SlideMenuState extends State<SlideMenu> with SingleTickerProviderStateMix
                       case '/settings':
                       case '/statistics':
                       case '/help':
+                      case '/professional-help':
                         context.push(item.route);
                         break;
                       default:

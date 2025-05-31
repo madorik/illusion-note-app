@@ -21,6 +21,7 @@ import '../../core/models/emotion_analysis_model.dart';
 import '../../core/models/psychology_test_model.dart';
 import '../../features/statistics/screens/statistics_screen.dart';
 import '../../features/help/screens/help_screen.dart';
+import '../../features/professional/screens/professional_help_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
@@ -190,6 +191,13 @@ class AppRouter {
         name: 'help',
         builder: (context, state) => const HelpScreen(),
       ),
+      
+      // Professional Help (Full Screen)
+      GoRoute(
+        path: '/professional-help',
+        name: 'professional-help',
+        builder: (context, state) => const ProfessionalHelpScreen(),
+      ),
     ],
   );
 }
@@ -214,4 +222,5 @@ class Routes {
   static const String psychologyTestHistory = '/psychology-test-history';
   static const String statistics = '/statistics';
   static const String help = '/help';
+  static const String professionalHelp = '/professional-help';
 } 
