@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import '../../features/auth/providers/auth_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'slide_menu.dart';
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -65,6 +66,24 @@ class _MainLayoutState extends State<MainLayout> {
     }
   }
 
+  void _openSlideMenu() {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const SlideMenu(),
+        transitionDuration: const Duration(milliseconds: 300),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+        barrierColor: Colors.transparent,
+        opaque: false,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,7 +110,8 @@ class _MainLayoutState extends State<MainLayout> {
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            leading: PopupMenuButton<String>(
+            leading: IconButton(
+              onPressed: _openSlideMenu,
               icon: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -108,69 +128,6 @@ class _MainLayoutState extends State<MainLayout> {
                   size: 20,
                 ),
               ),
-              onSelected: (value) => _handleMainMenuAction(context, value),
-              itemBuilder: (context) => [
-                const PopupMenuItem(
-                  value: 'emotion_input',
-                  child: Row(
-                    children: [
-                      Icon(Icons.add_circle_outline, size: 20, color: Color(0xFF6B73FF)),
-                      SizedBox(width: 12),
-                      Text('감정기록'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'history',
-                  child: Row(
-                    children: [
-                      Icon(Icons.history_outlined, size: 20, color: Color(0xFF6B73FF)),
-                      SizedBox(width: 12),
-                      Text('기록보기'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'calendar',
-                  child: Row(
-                    children: [
-                      Icon(Icons.calendar_month_outlined, size: 20, color: Color(0xFF6B73FF)),
-                      SizedBox(width: 12),
-                      Text('캘린더'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'chat',
-                  child: Row(
-                    children: [
-                      Icon(Icons.chat_outlined, size: 20, color: Color(0xFF6B73FF)),
-                      SizedBox(width: 12),
-                      Text('감정 대화'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'recommendation',
-                  child: Row(
-                    children: [
-                      Icon(Icons.recommend_outlined, size: 20, color: Color(0xFF6B73FF)),
-                      SizedBox(width: 12),
-                      Text('감정 맞춤 추천'),
-                    ],
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: 'psychology',
-                  child: Row(
-                    children: [
-                      Icon(Icons.psychology_outlined, size: 20, color: Color(0xFF6B73FF)),
-                      SizedBox(width: 12),
-                      Text('심리 검사'),
-                    ],
-                  ),
-                ),
-              ],
             ),
             title: Text(
               _getCurrentPageTitle(),
@@ -329,32 +286,6 @@ class _MainLayoutState extends State<MainLayout> {
         size: 28,
       ),
     );
-  }
-
-  void _handleMainMenuAction(BuildContext context, String action) {
-    switch (action) {
-      case 'emotion_input':
-        context.push('/emotion-input');
-        break;
-      case 'history':
-        context.push('/history');
-        break;
-      case 'calendar':
-        context.push('/calendar');
-        break;
-      case 'statistics':
-        context.push('/statistics');
-        break;
-      case 'chat':
-        context.push('/emotion-chat');
-        break;
-      case 'recommendation':
-        context.push('/recommendation');
-        break;
-      case 'psychology':
-        context.push('/psychology');
-        break;
-    }
   }
 
   void _handleMenuAction(BuildContext context, String action) {
